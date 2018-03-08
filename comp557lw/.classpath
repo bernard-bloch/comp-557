@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="mintoolslw.jar"/>
+	<classpathentry exported="true" kind="lib" path="vecmath.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/2015/jbloch1/lwjgl/lwjgl.jar"/>
+	<classpathentry kind="lib" path="/home/2015/jbloch1/lwjgl-opengl/lwjgl-opengl.jar"/>
+	<classpathentry kind="lib" path="/home/2015/jbloch1/lwjgl-glfw/lwjgl-glfw.jar"/>
+	<classpathentry kind="lib" path="/home/2015/jbloch1/lwjgl-glfw/lwjgl-glfw-natives-linux.jar"/>
+	<classpathentry kind="lib" path="/home/2015/jbloch1/lwjgl/lwjgl-natives-linux.jar"/>
+	<classpathentry kind="lib" path="/home/2015/jbloch1/lwjgl-opengl/lwjgl-opengl-natives-linux.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
