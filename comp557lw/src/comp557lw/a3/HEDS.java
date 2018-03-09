@@ -3,10 +3,27 @@ package comp557lw.a3;
 import static org.lwjgl.opengl.GL11.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+
+// https://alvinalexander.com/java/java-tuple-classes
+final class Tuple<T> {
+	private final T a, b;
+	public Tuple(T a, T b) { this.a = a; this.b = b; }
+	public final boolean equals(Object o) {
+		if(this == o) return true;
+		if(this == null || getClass() != o.getClass()) return false;
+		Tuple<?> x = (Tuple<?>) o;
+		return this.a.equals(x.a) && this.b.equals(x.b);
+	}
+	public int hashCode() {
+        return 31 * a.hashCode() + b.hashCode(); // quick and dirty?
+    }
+}
 
 /**
  * Half edge data structure.
@@ -35,36 +52,72 @@ public class HEDS {
     public HEDS( PolygonSoup soup ) {
         
         
-        
-        System.err.println("This is called here!!!!");
         // TODO: Objective 1: create the half edge data structure from a polygon soup
+
+        Map<Tuple<Integer>, HalfEdge> twins = new HashMap<>();
+        
         for(int[] face : soup.faceList) {
-        	HalfEdge he = null, heLast = null, heFirst = null;
-        	for(int vertexIndex : face) {
+        	if(face.length < 3) {
+        		System.err.println("The face " + face + " is degenarate skipping.");
+        		continue;
+        	}
+        	HalfEdge he = null, hePrev = null, heFirst = null;
+        	Vertex vertexThis, vertexNext;
+        	// int vertexIndex : face
+        	for(int i = 0, j = 1; i < face.length; i++, j++, j %= face.length) {
+        		int vertexIndex = face[i], vertexNextIndex = face[j];
+        		if(vertexIndex == vertexNextIndex) {
+        			System.err.println("Vertex index " + vertexIndex + " degenerate.");
+        			continue;
+        		}
+        		vertexThis = soup.vertexList.get(vertexIndex);
+        		vertexNext = soup.vertexList.get(vertexNextIndex);
+        		// new edge
         		he = new HalfEdge();
-        		he.head = soup.vertexList.get(vertexIndex);
+        		he.head = vertexThis;
         		he.next = null;
-        		if(heLast == null) {
+        		if(hePrev == null) {
         			heFirst = he;
         		} else {
-        			heLast.next = he;
+        			hePrev.next = he;
         		}
-        		heLast = he;
+        		hePrev = he;
+        		final Tuple<Integer> hash;
+        		if(vertexIndex < vertexNextIndex) {
+        			hash = new Tuple<>(vertexIndex, vertexNextIndex);
+        		} else {
+        			hash = new Tuple<>(vertexNextIndex, vertexIndex);
+        		}
+        		HalfEdge twin = twins.get(hash);
+        		if(twin == null) {
+        			twins.put(hash, he);
+        		} else {
+        			assert(twin.twin == null);
+        			twins.remove(hash);
+        			twin.twin = he;
+        			he.twin = twin;
+        			assert(he.next.head == twin.head && twin.next.head == he.head);
+        		}
         	}
         	assert(heFirst != null && he != null && he.next == null);
         	he.next = heFirst;
         	faces.add(new Face(heFirst));
         }
-        
+        if(!twins.isEmpty()) {
+        	System.err.println("There are still edges with unpaired twins. Hole in the mesh?");
+        	twins.clear();
+        }
+
+        /*
         // brute force O(n^2)
         HalfEdge bogus = new HalfEdge();
         for(Face face1 : faces) {
-        	for(HalfEdge he1 = face1.he; /*assert(he1)*/he1.next != face1.he; he1 = he1.next) {
+        	for(HalfEdge he1 = face1.he; assert(he1),he1.next != face1.he; he1 = he1.next) {
         		if(he1.twin != null) continue;
         		he1.twin = bogus; // to not get this one
         		boolean doneInner = false;
         		for(Face face2 : faces) {
-        			for(HalfEdge he2 = face2.he; /*assert(he2)*/he2.next != face2.he; he2 = he2.next) {
+        			for(HalfEdge he2 = face2.he; assert(he2),he2.next != face2.he; he2 = he2.next) {
                 		if(he2.twin != null || he1.next.head != he2.head || he2.next.head != he1.head) continue;
                 		System.err.println("Pairing " + he1 + " and " + he2);
     					he1.twin = he2;
@@ -81,7 +134,7 @@ public class HEDS {
         		}
         	}
         }
-        
+        */
     } 
     
     /**
