@@ -36,7 +36,7 @@ public class HEDS {
         
         
         
-        
+        System.err.println("This is called here!!!!");
         // TODO: Objective 1: create the half edge data structure from a polygon soup
         for(int[] face : soup.faceList) {
         	HalfEdge he = null, heLast = null, heFirst = null;
@@ -56,7 +56,31 @@ public class HEDS {
         	faces.add(new Face(heFirst));
         }
         
-        
+        // brute force O(n^2)
+        HalfEdge bogus = new HalfEdge();
+        for(Face face1 : faces) {
+        	for(HalfEdge he1 = face1.he; /*assert(he1)*/he1.next != face1.he; he1 = he1.next) {
+        		if(he1.twin != null) continue;
+        		he1.twin = bogus; // to not get this one
+        		boolean doneInner = false;
+        		for(Face face2 : faces) {
+        			for(HalfEdge he2 = face2.he; /*assert(he2)*/he2.next != face2.he; he2 = he2.next) {
+                		if(he2.twin != null || he1.next.head != he2.head || he2.next.head != he1.head) continue;
+                		System.err.println("Pairing " + he1 + " and " + he2);
+    					he1.twin = he2;
+    					he2.twin = he1;
+    					doneInner = true;
+    					break;
+        			}
+        			if(doneInner) break;
+        		}
+        		// looked through all half edges and didn't find it's twin -- maybe it is open
+        		if(!doneInner) {
+        			he1.twin = null;
+        			System.err.println("Vertex " + he1.head + " on face " + face1 + " doesn't have a correspoding twin.");
+        		}
+        	}
+        }
         
     } 
     
