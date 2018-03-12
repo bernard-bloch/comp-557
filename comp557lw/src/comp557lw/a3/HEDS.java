@@ -11,14 +11,13 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 // https://alvinalexander.com/java/java-tuple-classes
-final class Tuple<T> {
-	private final T a, b;
-	public Tuple(T a, T b) { this.a = a; this.b = b; }
+final class Tuple {
+	private final int a, b;
+	public Tuple(int a, int b) { this.a = a; this.b = b; }
 	// equals is wierd because it's going one way and the other
 	public final boolean equals(Object o) {
-		if(this == o) return true;
-		if(this == null || getClass() != o.getClass()) return false;
-		Tuple<?> x = (Tuple<?>) o;
+		if(this == o || this == null || getClass() != o.getClass()) return false;
+		Tuple x = (Tuple) o;
 		return this.a.equals(x.b) && this.b.equals(x.a);
 	}
 	// must be symmetric!
@@ -31,7 +30,7 @@ final class Tuple<T> {
  * Half edge data structure.
  * Maintains a list of faces (i.e., one half edge of each) to allow for easy display of geometry.
  * 
- * @author Jonathan Bernard Bloch
+ * @author TODO: Jonathan Bernard Bloch
  */
 public class HEDS {
 
@@ -56,7 +55,7 @@ public class HEDS {
         
         // TODO: Objective 1: create the half edge data structure from a polygon soup
 
-        Map<Tuple<int>, HalfEdge> twins = new HashMap<>();
+        Map<Tuple, HalfEdge> twins = new HashMap<>();
         
         for(int[] face : soup.faceList) {
         	if(face.length < 3) {
@@ -76,7 +75,7 @@ public class HEDS {
 				}
 				
 				// hashmap twins contains inverse, otherwise add it
-				final Tuple<int> hash = new Tuple<>(vertexIndexPrev, vertexIndex);
+				final Tuple hash = new Tuple(vertexIndexPrev, vertexIndex);
 				HalfEdge twin = twins.get(hash);
 				if(twin == null) {
 					twins.put(hash, he);
