@@ -14,14 +14,16 @@ import javax.vecmath.Vector3d;
 final class Tuple<T> {
 	private final T a, b;
 	public Tuple(T a, T b) { this.a = a; this.b = b; }
+	// equals is wierd because it's going one way and the other
 	public final boolean equals(Object o) {
 		if(this == o) return true;
 		if(this == null || getClass() != o.getClass()) return false;
 		Tuple<?> x = (Tuple<?>) o;
-		return this.a.equals(x.a) && this.b.equals(x.b);
+		return this.a.equals(x.b) && this.b.equals(x.a);
 	}
+	// must be symmetric!
 	public int hashCode() {
-        return 31 * a.hashCode() + b.hashCode(); // quick and dirty?
+        return a.hashCode() + b.hashCode();
     }
 }
 
@@ -54,50 +56,41 @@ public class HEDS {
         
         // TODO: Objective 1: create the half edge data structure from a polygon soup
 
-        Map<Tuple<Integer>, HalfEdge> twins = new HashMap<>();
+        Map<Tuple<int>, HalfEdge> twins = new HashMap<>();
         
         for(int[] face : soup.faceList) {
         	if(face.length < 3) {
         		System.err.println("The face " + face + " is degenarate skipping.");
         		continue;
         	}
-        	HalfEdge he = null, hePrev = null, heFirst = null;
-        	Vertex vertexThis, vertexNext;
-        	// int vertexIndex : face
-        	for(int i = 0, j = 1; i < face.length; i++, j++, j %= face.length) {
-        		int vertexIndex = face[i], vertexNextIndex = face[j];
-        		if(vertexIndex == vertexNextIndex) {
-        			System.err.println("Vertex index " + vertexIndex + " degenerate.");
-        			continue;
-        		}
-        		vertexThis = soup.vertexList.get(vertexIndex);
-        		vertexNext = soup.vertexList.get(vertexNextIndex);
-        		// new edge
-        		he = new HalfEdge();
-        		he.head = vertexThis;
-        		he.next = null;
-        		if(hePrev == null) {
-        			heFirst = he;
-        		} else {
-        			hePrev.next = he;
-        		}
-        		hePrev = he;
-        		final Tuple<Integer> hash;
-        		if(vertexIndex < vertexNextIndex) {
-        			hash = new Tuple<>(vertexIndex, vertexNextIndex);
-        		} else {
-        			hash = new Tuple<>(vertexNextIndex, vertexIndex);
-        		}
-        		HalfEdge twin = twins.get(hash);
-        		if(twin == null) {
-        			twins.put(hash, he);
-        		} else {
+			int vertexIndexPrev = face[face.length - 1];
+			HalfEdge hePrev = null, heFirst = null, he;
+        	for(int vertexIndex : face) {
+				he = new HalfEdge(soup.vertexList.get(vertexIndex));
+				if(hePrev != null) {
+					hePrev.next = he;
+				}
+				else {
+					// heFirst doesn't change, used to connect the face out of the loop
+					heFirst = he;
+				}
+				
+				// hashmap twins contains inverse, otherwise add it
+				final Tuple<int> hash = new Tuple<>(vertexIndexPrev, vertexIndex);
+				HalfEdge twin = twins.get(hash);
+				if(twin == null) {
+					twins.put(hash, he);
+				}
+				else {
         			assert(twin.twin == null);
         			twins.remove(hash);
-        			twin.twin = he;
-        			he.twin = twin;
-        			assert(he.next.head == twin.head && twin.next.head == he.head);
-        		}
+					he.twin = twin;
+					twin.twin = he;
+				}
+
+				// update for the next iteration
+				vertexIndexPrev = vertexIndex;
+				hePrev = he;
         	}
         	assert(heFirst != null && he != null && he.next == null);
         	he.next = heFirst;

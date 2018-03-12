@@ -80,7 +80,7 @@ public class A3App implements SceneGraphNode, KeyCallback {
      */
     public A3App() {    
         loadSoupBuildAndSubdivide( soupFiles[0], 3 );
-        EasyViewer ev = new EasyViewer("Comp 557 Assignment 4 - YOUR NAME HERE", this, new Dimension(600, 600), new Dimension(600, 600) );
+        EasyViewer ev = new EasyViewer("Comp 557 Assignment 3 - Jonathan Bernard Bloch", this, new Dimension(600, 600), new Dimension(600, 600) );
         ev.setKeyCallback( this );
         System.out.println( keyboardInterfaceInstructions );
     }
