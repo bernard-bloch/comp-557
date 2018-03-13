@@ -18,12 +18,12 @@ final class Tuple {
 	public final boolean equals(Object o) {
 		if(this == o || this == null || getClass() != o.getClass()) return false;
 		Tuple x = (Tuple) o;
-		return this.a.equals(x.b) && this.b.equals(x.a);
+		return this.a == x.b && this.b == x.a;
 	}
 	// must be symmetric!
 	public int hashCode() {
-        return a.hashCode() + b.hashCode();
-    }
+		return a + b;
+	}
 }
 
 /**
@@ -57,15 +57,17 @@ public class HEDS {
 
         Map<Tuple, HalfEdge> twins = new HashMap<>();
         
+        // iterate on faces
         for(int[] face : soup.faceList) {
         	if(face.length < 3) {
         		System.err.println("The face " + face + " is degenarate skipping.");
         		continue;
         	}
 			int vertexIndexPrev = face[face.length - 1];
-			HalfEdge hePrev = null, heFirst = null, he;
+			HalfEdge hePrev = null, heFirst = null, he = null;
         	for(int vertexIndex : face) {
-				he = new HalfEdge(soup.vertexList.get(vertexIndex));
+				he = new HalfEdge();
+				he.head = soup.vertexList.get(vertexIndex);
 				if(hePrev != null) {
 					hePrev.next = he;
 				}
