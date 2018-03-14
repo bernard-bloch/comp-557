@@ -33,10 +33,30 @@ public class CatmullClark {
     
     // an even vertex is a vertex that is already in the mesh
     private static void evenVertices(Face face) {
-        // question 2: even vertices of degree 2
     	HalfEdge he = face.he;
     	do {
-        	Vertex neigbors[] = getHeadNeighbors(he);
+    		Vertex v0 = he.head;
+    		assert(v0.child == null);
+        	Vertex v1[] = getHeadNeighbors(he);
+        	assert(v1.length > 1);
+        	if(v1.length == 2) {
+                // question 2: even vertices of degree 2
+        		Vertex child = new Vertex();
+        		Point3d temp = new Point3d();
+        		temp.set(v0.p);
+        		temp.scale(0.75);
+        		child.p.add(temp);
+        		temp.set(v1[0].p);
+        		temp.scale(0.125);
+        		child.p.add(temp);
+        		temp.set(v1[1].p);
+        		temp.scale(0.125);
+        		child.p.add(temp);
+        		v0.child = child;
+        	}
+        	else {
+        		// 
+        	}
     	} while((he = he.next) != face.he);
     }
     
