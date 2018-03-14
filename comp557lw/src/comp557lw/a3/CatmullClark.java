@@ -36,11 +36,7 @@ public class CatmullClark {
         // question 2: even vertices of degree 2
     	HalfEdge he = face.he;
     	do {
-        	int degree = degreeHead(he);
-        	ArrayList<Vertex> one = getHeadDistanceOne(he);
-        	System.err.println("degree "+degree+" ---> "+one.size());
-        	assert(degree == one.size());
-        	assert(degree > 1);
+        	Vertex neigbors[] = getHeadNeighbors(he);
     	} while((he = he.next) != face.he);
     }
     
@@ -60,7 +56,6 @@ public class CatmullClark {
     	}
     	if(cw != null) return degree;
     	// edge case
-    	System.err.println("cw is null with "+degree);
     	HalfEdge ccw = he;
     	while(true) {
     		ccw = ccw.twin;
@@ -74,7 +69,8 @@ public class CatmullClark {
     	return degree;
     }
     
-    private static ArrayList<Vertex> getHeadDistanceOne(HalfEdge he) {
+    // get all the vertices of distance 1 from the head. The size will be the degree.
+    private static Vertex[] getHeadNeighbors(HalfEdge he) {
     	ArrayList<Vertex> vs = new ArrayList<>();
     	HalfEdge cw = he;
     	while(cw != null) {
@@ -85,20 +81,22 @@ public class CatmullClark {
     		if(cw.twin == he) break;
     		cw = cw.twin;
     	}
-    	if(cw != null) return vs;
-    	// edge case, I am not optimizing for performance
-    	HalfEdge ccw = he;
-    	while(ccw != null) {
-    		ccw = ccw.prev();
-    		assert(ccw != null);
-    		vs.add(ccw.head);
-    		ccw = ccw.next.twin;
-    		if(ccw == null) break;
-    		assert(ccw != he);
-    		ccw = ccw.prev();
-    		assert(ccw != null && ccw != he);
+    	if(cw == null) {
+	    	// edge case
+	    	HalfEdge ccw = he;
+	    	while(ccw != null) {
+	    		ccw = ccw.prev();
+	    		assert(ccw != null);
+	    		vs.add(ccw.head);
+	    		ccw = ccw.next.twin;
+	    		if(ccw == null) break;
+	    		assert(ccw != he);
+	    		ccw = ccw.prev();
+	    		assert(ccw != null && ccw != he);
+	    	}
     	}
-    	return vs;
+    	Vertex list[] = new Vertex[vs.size()];
+    	return vs.toArray(list);
     }
     
     // Odd vertices are created at each edge and in the center of each face.
