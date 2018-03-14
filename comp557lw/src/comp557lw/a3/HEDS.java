@@ -30,7 +30,7 @@ final class Tuple {
  * Half edge data structure.
  * Maintains a list of faces (i.e., one half edge of each) to allow for easy display of geometry.
  * 
- * @author TODO: Jonathan Bernard Bloch
+ * @author Jonathan Bernard Bloch
  */
 public class HEDS {
 

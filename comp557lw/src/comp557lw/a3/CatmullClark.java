@@ -1,5 +1,7 @@
 package comp557lw.a3;
 
+import java.util.ArrayList;
+
 import javax.vecmath.Point3d;
 
 /**
@@ -20,10 +22,83 @@ public class CatmullClark {
         
         // TODO: Objectives 2,3,4: finish this method!!
         // you will certainly want to write lots of helper methods!
-        for(Face face : heds.faces) addChildVerticesToFace(face);
-        for(Face face : heds.faces) addEven(face);
+        
+        for(Face face : heds.faces) evenVertices(face);
+        	
+        //for(Face face : heds.faces) addChildVerticesToFace(face);
+        //for(Face face : heds.faces) addEven(face);
         
         return heds2;        
+    }
+    
+    // an even vertex is a vertex that is already in the mesh
+    private static void evenVertices(Face face) {
+        // question 2: even vertices of degree 2
+    	HalfEdge he = face.he;
+    	do {
+        	int degree = degreeHead(he);
+        	ArrayList<Vertex> one = getHeadDistanceOne(he);
+        	System.err.println("degree "+degree+" ---> "+one.size());
+        	assert(degree == one.size());
+        	assert(degree > 1);
+    	} while((he = he.next) != face.he);
+    }
+    
+    // count the degree of the head vertex
+    private static int degreeHead(HalfEdge he) {
+    	if(he == null) return 0;
+    	int degree = 1;
+    	HalfEdge cw = he;
+    	while(true) {
+    		cw = cw.next;
+    		if(cw == null) break;
+    		assert(cw != he);
+    		if(cw.twin == he) break;
+    		degree++;
+    		cw = cw.twin;
+    		if(cw == null) break;
+    	}
+    	if(cw != null) return degree;
+    	// edge case
+    	System.err.println("cw is null with "+degree);
+    	HalfEdge ccw = he;
+    	while(true) {
+    		ccw = ccw.twin;
+    		if(ccw == null) break;
+    		assert(ccw != he);
+    		ccw = ccw.prev();
+    		if(ccw == null) break;
+    		assert(ccw != he);
+    		degree++;
+    	}
+    	return degree;
+    }
+    
+    private static ArrayList<Vertex> getHeadDistanceOne(HalfEdge he) {
+    	ArrayList<Vertex> vs = new ArrayList<>();
+    	HalfEdge cw = he;
+    	while(cw != null) {
+    		cw = cw.next;
+    		if(cw == null) break;
+    		assert(cw != he);
+    		vs.add(cw.head);
+    		if(cw.twin == he) break;
+    		cw = cw.twin;
+    	}
+    	if(cw != null) return vs;
+    	// edge case, I am not optimizing for performance
+    	HalfEdge ccw = he;
+    	while(ccw != null) {
+    		ccw = ccw.prev();
+    		assert(ccw != null);
+    		vs.add(ccw.head);
+    		ccw = ccw.next.twin;
+    		if(ccw == null) break;
+    		assert(ccw != he);
+    		ccw = ccw.prev();
+    		assert(ccw != null && ccw != he);
+    	}
+    	return vs;
     }
     
     // Odd vertices are created at each edge and in the center of each face.

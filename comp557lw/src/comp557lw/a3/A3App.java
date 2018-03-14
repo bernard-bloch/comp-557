@@ -164,7 +164,7 @@ public class A3App implements SceneGraphNode, KeyCallback {
     private BooleanParameter drawChildVerts = new BooleanParameter( "draw child vertices", false );
     private BooleanParameter drawWireFrame = new BooleanParameter( "draw wire frame", false );
     // TODO: Objective 1: on the line below, set the drawCoarse default value to false once you've correctly created your half edge data structure
-    private BooleanParameter drawSoup = new BooleanParameter( "draw coarse soup mesh", true );
+    private BooleanParameter drawSoup = new BooleanParameter( "draw coarse soup mesh", false );
     private IntParameter subdivisionLevels = new IntParameter("maximum subdivisions", 3, 3, Integer.MAX_VALUE );
     
     @Override
