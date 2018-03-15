@@ -62,7 +62,7 @@ public class CatmullClark {
     }
     
     // this will store the vertices length 0, 1, 2, from the specified vertex in headDistance
-    private static Vertex v0[], v1[], v2[];
+    private static Point3d v0[], v1[], v2[];
     		
 	// get distance 0, 1 and 2
     static private void headDistance(HalfEdge he) {
@@ -73,16 +73,17 @@ public class CatmullClark {
     	for(HalfEdge h : he1) headNeighborsToVs(h, he2);
     	he2.removeAll(he0);
     	he2.removeAll(he1);
-    	Set<Vertex> temp0 = new HashSet<>(he0.size()), temp1 = new HashSet<>(he0.size()), temp2 = new HashSet<>(he2.size());
-    	he0.forEach(h -> temp0.add(h.head));
-    	he1.forEach(h -> temp1.add(h.head));
-    	he2.forEach(h -> temp2.add(h.head));
+    	Set<Point3d> temp0 = new HashSet<>(he0.size()), temp1 = new HashSet<>(he0.size()), temp2 = new HashSet<>(he2.size());
+    	he0.forEach(h -> temp0.add(h.head.p));
+    	he1.forEach(h -> temp1.add(h.head.p));
+    	he2.forEach(h -> temp2.add(h.head.p));
     	// there could be vertices that have many edges that have it as head, make sure
     	temp2.removeAll(temp0);
     	temp2.removeAll(temp1);
-    	v0 = temp0.toArray(new Vertex[temp0.size()]);
-    	v1 = temp1.toArray(new Vertex[temp1.size()]);
-    	v2 = temp2.toArray(new Vertex[temp2.size()]);
+    	System.err.println(he + ":\n\t("+temp0.size()+")" + temp0 + "\n\t("+temp1.size()+")" + temp1 + "\n\t("+temp2.size()+")" + temp2 + "\n");
+    	v0 = temp0.toArray(new Point3d[temp0.size()]);
+    	v1 = temp1.toArray(new Point3d[temp1.size()]);
+    	v2 = temp2.toArray(new Point3d[temp2.size()]);
     }
     
     // an even vertex is a vertex that is already in the mesh
@@ -91,28 +92,44 @@ public class CatmullClark {
     	HalfEdge he = face.he;
     	do {
         	headDistance(he);
-        	System.err.println(he + ":\n\t("+v0.length+")" + v0 + "\n\t("+v1.length+")" + v1 + "\n\t("+v2.length+")" + v2 + "\n");
+    		Vertex child = new Vertex();
         	if(v1.length < 2) {
         		System.err.println("Vertex " + he.head + " has degree < 2, skipping.");
         	}
         	else if(v1.length == 2) {
                 // question 2: even vertices of degree 2
-/*        		Vertex child = new Vertex();
         		Point3d temp = new Point3d();
-        		temp.set(v0.p);
+        		temp.set(v0[0]);
         		temp.scale(0.75);
         		child.p.add(temp);
-        		temp.set(v1[0].p);
+        		temp.set(v1[0]);
         		temp.scale(0.125);
         		child.p.add(temp);
-        		temp.set(v1[1].p);
+        		temp.set(v1[1]);
         		temp.scale(0.125);
         		child.p.add(temp);
-        		v0.child = child;*/
+        	} else {
+        		double k = v1.length + v2.length;
+        		double beta = 3.0 / (2.0 * k);
+        		double gamma = 1.0 / (4.0 * k);
+        		
+        		Point3d temp = new Point3d();
+        		temp.add(v0[0]);
+        		temp.scale(1.0 - beta - gamma);
+        		child.p.add(temp);
+        		
+        		temp = new Point3d();
+        		for(Point3d v : v1) temp.add(v);
+        		temp.scale(beta / k);
+        		child.p.add(temp);
+        		
+        		temp = new Point3d();
+        		for(Point3d v : v2) temp.add(v);
+        		temp.scale(gamma / k);
+        		child.p.add(temp);
         	}
-        	int k = v1.length + v2.length;
-        	double beta = 3.0 / (2.0 * k);
-        	double gamma = 1.0 / (4.0 * k);
+
+        	he.head.child = child;
 
         	/*assert(v1.length > 1);
         	if(v1.length == 2) {
