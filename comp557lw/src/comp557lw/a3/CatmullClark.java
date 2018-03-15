@@ -26,7 +26,12 @@ public class CatmullClark {
         // TODO: Objectives 2,3,4: finish this method!!
         // you will certainly want to write lots of helper methods!
         
-        for(Face face : heds.faces) evenVertices(face);
+        for(Face face : heds.faces) {
+            // question 2:
+        	evenVertices(face);
+        	// question 3a:
+        	faceVertex(face);
+        }
         	
         //for(Face face : heds.faces) addChildVerticesToFace(face);
         //for(Face face : heds.faces) addEven(face);
@@ -86,7 +91,6 @@ public class CatmullClark {
     	v2 = temp2.toArray(new Point3d[temp2.size()]);
     }
     
-    // question 2:
     // an even vertex is a vertex that is already in the mesh
     private static void evenVertices(Face face) {
     	HalfEdge he = face.he;
@@ -137,7 +141,19 @@ public class CatmullClark {
     	} while((he = he.next) != face.he);
     }
 
-    
+    static void faceVertex(Face face) {
+    	assert(face.child == null);
+    	HalfEdge he = face.he;
+    	face.child = new Vertex();
+    	Point3d sum = face.child.p;
+    	int count = 0;
+    	do {
+    		sum.add(he.head.p);
+    		count++;
+    	} while((he = he.next) != face.he);
+    	assert(count >= 3);
+    	sum.scale(1.0 / count);
+    }
     
     // Odd vertices are created at each edge and in the center of each face.
     private static void addChildVerticesToFace(Face face) 
