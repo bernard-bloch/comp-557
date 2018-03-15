@@ -17,6 +17,7 @@ public class HalfEdge {
     public HalfEdge child2;
     public HalfEdge parent;
     public Face leftFace;
+    public Vertex half;
 
     /** @return the previous half edge (could just be stored) */
     public HalfEdge prev() {

@@ -1,10 +1,7 @@
 package comp557lw.a3;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import javax.vecmath.Point3d;
 
 /**
@@ -33,8 +30,14 @@ public class CatmullClark {
         	faceVertex(face);
         }
         	
-        //for(Face face : heds.faces) addChildVerticesToFace(face);
-        //for(Face face : heds.faces) addEven(face);
+        for(Face face : heds.faces) {
+        	// question 3b
+        	HalfEdge he = face.he;
+        	do {
+        		assert(he != null);
+        		divideEdge(he);
+        	} while((he = he.next) != face.he);
+        }
         
         return heds2;        
     }
@@ -85,7 +88,7 @@ public class CatmullClark {
     	// there could be vertices that have many edges that have it as head, make sure
     	temp2.removeAll(temp0);
     	temp2.removeAll(temp1);
-    	System.err.println(he + ":\n\t("+temp0.size()+")" + temp0 + "\n\t("+temp1.size()+")" + temp1 + "\n\t("+temp2.size()+")" + temp2 + "\n");
+    	//System.err.println(he + ":\n\t("+temp0.size()+")" + temp0 + "\n\t("+temp1.size()+")" + temp1 + "\n\t("+temp2.size()+")" + temp2 + "\n");
     	v0 = temp0.toArray(new Point3d[temp0.size()]);
     	v1 = temp1.toArray(new Point3d[temp1.size()]);
     	v2 = temp2.toArray(new Point3d[temp2.size()]);
@@ -141,6 +144,7 @@ public class CatmullClark {
     	} while((he = he.next) != face.he);
     }
 
+    // face
     static void faceVertex(Face face) {
     	assert(face.child == null);
     	HalfEdge he = face.he;
@@ -148,43 +152,15 @@ public class CatmullClark {
     	Point3d sum = face.child.p;
     	int count = 0;
     	do {
+    		assert(he != null);
     		sum.add(he.head.p);
     		count++;
     	} while((he = he.next) != face.he);
     	assert(count >= 3);
     	sum.scale(1.0 / count);
     }
-    
-    // Odd vertices are created at each edge and in the center of each face.
-    private static void addChildVerticesToFace(Face face) 
-    {
-    	Point3d p = new Point3d();
-    	int count = 0;
-    	HalfEdge he = face.he;
-    	do
-    	{
-    		assert(he != null);
-    		p.add(he.head.p);
-    		count++;
-    		he = he.next;
-    	} while(he != face.he);
-    	assert(count > 2);
-    	p.scale(1/(double)count);
-    	face.child = new Vertex();
-    	face.child.p = p;
-    }
-    
-    private static void addEven(Face face) {
-    	HalfEdge he = face.he;
-    	do
-    	{
-    		assert(he != null);
-    		even(he);
-    		he = he.next;
-    	} while(he != face.he);
-    }
-    
-    private static Vertex even(HalfEdge he) {
+        
+/*    private static Vertex even(HalfEdge he) {
     	// If there is a child, return it
     	if(he.head.child != null) return he.head.child;
     	// build the child
@@ -210,9 +186,31 @@ public class CatmullClark {
    
     	// return the child
     	return he.head.child;
+    }*/
+    
+    // edge vertex. I added a temporary HalfEdge.half to separate the vertices adding from the connection step
+    static void divideEdge(HalfEdge he) {
+    	// already has a it from the twin
+    	if(he.half != null) {
+    		assert(he.twin != null && he.half == he.twin.half);
+    		return;
+    	}
+    	if(he.twin == null) {
+    		System.err.println("Got here.");
+    		// boundary odd
+    		he.half = new Vertex();
+    		Point3d p = he.half.p;
+    		p.add(he.head.p);
+    		p.add(he.prev().head.p);
+    		p.scale(0.5);
+    	} else {
+    		// internal odd -- requires face vertices
+    		assert(he.twin.child1 == null);
+    		
+    	}
     }
         
-    private static void addChildToEdges(Face face) {
+/*    private static void addChildToEdges(Face face) {
     	HalfEdge prev = face.he.prev();
     	HalfEdge he = face.he;
     	int k = 0;
@@ -299,5 +297,5 @@ public class CatmullClark {
     	}
     	return next.prev().head.p;
     }
-        
+     */   
 }
