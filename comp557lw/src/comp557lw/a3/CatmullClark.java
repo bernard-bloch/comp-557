@@ -86,6 +86,7 @@ public class CatmullClark {
     	v2 = temp2.toArray(new Point3d[temp2.size()]);
     }
     
+    // question 2:
     // an even vertex is a vertex that is already in the mesh
     private static void evenVertices(Face face) {
 
@@ -93,11 +94,12 @@ public class CatmullClark {
     	do {
         	headDistance(he);
     		Vertex child = new Vertex();
-        	if(v1.length < 2) {
+    		int k = v1.length /*+ v2.length <- oohhh k is the degree, didn't see it in orange */;
+        	if(k < 2) {
         		System.err.println("Vertex " + he.head + " has degree < 2, skipping.");
         	}
-        	else if(v1.length == 2) {
-                // question 2: even vertices of degree 2
+        	// boundary
+        	else if(k == 2) {
         		Point3d temp = new Point3d();
         		temp.set(v0[0]);
         		temp.scale(0.75);
@@ -108,8 +110,9 @@ public class CatmullClark {
         		temp.set(v1[1]);
         		temp.scale(0.125);
         		child.p.add(temp);
-        	} else {
-        		double k = v1.length + v2.length;
+        	}
+        	// interior
+        	else {
         		double beta = 3.0 / (2.0 * k);
         		double gamma = 1.0 / (4.0 * k);
         		
