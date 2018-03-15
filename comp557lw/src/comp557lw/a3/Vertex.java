@@ -10,4 +10,12 @@ public class Vertex {
     public Point3d p = new Point3d();
     public Vector3d n;
     Vertex child;
+    
+    // debug
+    public String toString() {
+    	/*return this.n.toString(); arrrrrg*/
+    	//return "(" + p.x + ", " + p.y + ", " + p.z + ")";
+    	return "Vx" + hashCode();
+    }
+    
 }
