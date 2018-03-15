@@ -61,32 +61,28 @@ public class CatmullClark {
     	}
     }
     
+    // this will store the vertices length 0, 1, 2, from the specified vertex in headDistance
+    private static Vertex v0[], v1[], v2[];
+    		
 	// get distance 0, 1 and 2
-    static private void getHeadDistance(HalfEdge he, Set<Vertex> v0, Set<Vertex> v1, Set<Vertex> v2) {
+    static private void headDistance(HalfEdge he) {
     	Set<HalfEdge> he0 = new HashSet<>(), he1 = new HashSet<>(), he2 = new HashSet<>();
     	assert(he.head != null);
-    	v0.clear();
-    	v1.clear();
-    	v2.clear();
     	he0.add(he);
     	for(HalfEdge h : he0) headNeighborsToVs(h, he1);
     	for(HalfEdge h : he1) headNeighborsToVs(h, he2);
     	he2.removeAll(he0);
     	he2.removeAll(he1);
-    	//he0.forEach(h -> v0.add(h.head));
-    	// https://stackoverflow.com/questions/30082555/collectors-toset-and-hashset
-    	//v0 = he0.stream().map(h -> h.head).collect(Collectors.toSet());
-    	//v1 = he1.stream().map(h -> h.head).collect(Collectors.toSet());
-    	//v2 = he2.stream().map(h -> h.head).collect(Collectors.toSet());
-    	// https://stackoverflow.com/questions/39326658/java-8-foreach-add-subobject-to-new-list
-    	//v0 = he0.stream().map(prev()).collect(Collectors.toSet());
-    	//for(HalfEdge h : he0) v0.add(h.head);
-    	he0.forEach(h -> v0.add(h.head));
-    	he1.forEach(h -> v1.add(h.head));
-    	he2.forEach(h -> v2.add(h.head));
+    	Set<Vertex> temp0 = new HashSet<>(he0.size()), temp1 = new HashSet<>(he0.size()), temp2 = new HashSet<>(he2.size());
+    	he0.forEach(h -> temp0.add(h.head));
+    	he1.forEach(h -> temp1.add(h.head));
+    	he2.forEach(h -> temp2.add(h.head));
     	// there could be vertices that have many edges that have it as head, make sure
-    	v2.removeAll(v0);
-    	v2.removeAll(v1);
+    	temp2.removeAll(temp0);
+    	temp2.removeAll(temp1);
+    	v0 = temp0.toArray(new Vertex[temp0.size()]);
+    	v1 = temp1.toArray(new Vertex[temp1.size()]);
+    	v2 = temp2.toArray(new Vertex[temp2.size()]);
     }
     
     // an even vertex is a vertex that is already in the mesh
@@ -94,15 +90,14 @@ public class CatmullClark {
 
     	HalfEdge he = face.he;
     	do {
-    		Set<Vertex> v0 = new HashSet<>(), v1 = new HashSet<>(), v2 = new HashSet<>();
-
-        	getHeadDistance(he, v0, v1, v2);
-        	System.err.println(he + ":\n\t("+v0.size()+")" + v0 + "\n\t("+v1.size()+")" + v1 + "\n\t("+v2.size()+")" + v2 + "\n");
-
-        	/*assert(v1.length > 1);
-        	if(v1.length == 2) {
+        	headDistance(he);
+        	System.err.println(he + ":\n\t("+v0.length+")" + v0 + "\n\t("+v1.length+")" + v1 + "\n\t("+v2.length+")" + v2 + "\n");
+        	if(v1.length < 2) {
+        		System.err.println("Vertex " + he.head + " has degree < 2, skipping.");
+        	}
+        	else if(v1.length == 2) {
                 // question 2: even vertices of degree 2
-        		Vertex child = new Vertex();
+/*        		Vertex child = new Vertex();
         		Point3d temp = new Point3d();
         		temp.set(v0.p);
         		temp.scale(0.75);
@@ -113,7 +108,14 @@ public class CatmullClark {
         		temp.set(v1[1].p);
         		temp.scale(0.125);
         		child.p.add(temp);
-        		v0.child = child;
+        		v0.child = child;*/
+        	}
+        	int k = v1.length + v2.length;
+        	double beta = 3.0 / (2.0 * k);
+        	double gamma = 1.0 / (4.0 * k);
+
+        	/*assert(v1.length > 1);
+        	if(v1.length == 2) {
         	}
         	else {
         		// 
