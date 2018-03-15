@@ -89,9 +89,9 @@ public class CatmullClark {
     // question 2:
     // an even vertex is a vertex that is already in the mesh
     private static void evenVertices(Face face) {
-
     	HalfEdge he = face.he;
     	do {
+    		// set up distances in temp arrays v0, v1, v2
         	headDistance(he);
     		Vertex child = new Vertex();
     		int k = v1.length /*+ v2.length <- oohhh k is the degree, didn't see it in orange */;
@@ -134,12 +134,6 @@ public class CatmullClark {
 
         	he.head.child = child;
 
-        	/*assert(v1.length > 1);
-        	if(v1.length == 2) {
-        	}
-        	else {
-        		// 
-        	}*/
     	} while((he = he.next) != face.he);
     }
 
