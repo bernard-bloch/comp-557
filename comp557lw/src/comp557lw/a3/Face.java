@@ -17,6 +17,9 @@ public class Face {
     /** Child vertex in the middle of the face */
     Vertex child;
     
+    int no;
+    static int debug_no;
+    
     /** 
      * Constructs a face from a half edge, and computes the flat normal.
      * This constructor also sets all of the leftFace members of the 
@@ -25,6 +28,7 @@ public class Face {
      * @fixme Bernard: should be the average of all the normals, normalized, I guess it doesn't matter much
      */
     public Face( HalfEdge he ) {
+    	this.no = ++debug_no;
         this.he = he;
         Point3d p0 = he.head.p;
         Point3d p1 = he.next.head.p;
@@ -41,4 +45,8 @@ public class Face {
             loop = loop.next;
         } while ( loop != he );
     }    
+    
+    public String toString() {
+    	return "Face"+no;
+    }
 }

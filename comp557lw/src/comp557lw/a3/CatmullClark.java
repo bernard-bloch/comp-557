@@ -24,7 +24,10 @@ public class CatmullClark {
         // TODO: Objectives 2,3,4: finish this method!!
         // you will certainly want to write lots of helper methods!
         
-        for(Face face : heds.faces) {
+    	//System.err.println("New:");
+        //for(Face face : heds.faces) System.err.println(face);;
+
+    	for(Face face : heds.faces) {
             // question 2:
         	evenVertices(face);
         	// question 3a:
@@ -39,6 +42,15 @@ public class CatmullClark {
         		divideEdge(he);
         	} while((he = he.next) != face.he);
         }
+        
+        /*for(Face face : heds.faces) {
+        	// question 2 with https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface instead of the notes
+        	HalfEdge he = face.he;
+        	do {
+        		assert(he != null);
+        		wikiEven(he);
+        	} while((he = he.next) != face.he);
+        }*/
         
         // question 4
         for(Face face : heds.faces) {
@@ -59,7 +71,7 @@ public class CatmullClark {
                 Vector3d n = new Vector3d();
                 v1.sub(he.head.p, he.prev().head.p);
                 v2.sub(he.head.p, he.next.head.p);
-                n.cross( v2,v1 );
+                n.cross( v2,v1 ); // it's inverted? okay.
                 he.head.n.add(n);
         	} while((he = he.next) != face.he);
         }
@@ -73,6 +85,71 @@ public class CatmullClark {
         
         return heds2;        
     }
+    
+    // get all the HalfEdges going out he.head
+    /*static private Set<HalfEdge> headOut(HalfEdge he) {
+    	Set<HalfEdge> vs = new HashSet<>();
+    	HalfEdge cw = he;
+    	while(cw != null) {
+    		cw = cw.next;
+    		if(cw == null) break;
+    		assert(cw != he);
+    		vs.add(cw);
+    		if(cw.twin == he) break;
+    		cw = cw.twin;
+    	}
+    	if(cw == null) {
+	    	// edge case
+	    	HalfEdge ccw = he;
+	    	while(ccw != null) {
+	    		ccw = ccw.prev();
+	    		assert(ccw != null);
+	    		vs.add(ccw);
+	    		ccw = ccw.next.twin;
+	    		if(ccw == null) break;
+	    		assert(ccw != he);
+	    		ccw = ccw.prev();
+	    		assert(ccw != null && ccw != he);
+	    	}
+    	}
+    	assert(vs.size() >= 3);
+    	//return vs.toArray(new HalfEdge[vs.size()]);
+    	return vs;
+    }*/
+    
+/*    static private void wikiEven(HalfEdge he) {
+    	if(he.head.child != null) return;
+    	he.head.child = new Vertex();
+    	Set<HalfEdge> out = headOut(he);
+    	Point3d p = he.head.p;
+    	p.scale(out.size() - 3);
+    	Point3d f = out.stream().map(o -> o.leftFace.child.p).reduce(new Point3d(), (Point3d a, Point3d b) -> { a.add(b); return a; });
+    	f.scale(1.0 / out.size());
+    	Point3d r = out.stream().map(o -> o.head.p).reduce(new Point3d(), (Point3d a, Point3d b) -> { a.add(b); return a; });
+    	r.scale(2.0 / out.size());
+    	he.head.child.p.add(p);
+    	he.head.child.p.add(f);
+    	he.head.child.p.add(r);
+    	he.head.child.p.scale(1.0 / out.size());
+    }*/
+    
+/*    static private void wikiEven(HalfEdge he) {
+    	if(he.head.child != null) return;
+    	he.head.child = new Vertex();
+    	Set<HalfEdge> out = headOut(he);
+    	Point3d p = he.head.p;
+    	p.scale(out.size() - 3);
+    	Point3d f = new Point3d();
+    	for(HalfEdge o : out) f.add(o.leftFace.child.p);
+    	f.scale(1.0 / out.size());
+    	Point3d r = new Point3d();
+    	for(HalfEdge o : out) f.add(o.head.p);
+    	r.scale(2.0 / out.size());
+    	he.head.child.p.add(p);
+    	he.head.child.p.add(f);
+    	he.head.child.p.add(r);
+    	he.head.child.p.scale(1.0 / out.size());
+    }*/
     
     // get all the vertices of distance 1 from the head and add a halfedge that has head to vs
     static private void headNeighborsToVs(HalfEdge he, Set<HalfEdge> vs) {
@@ -121,6 +198,7 @@ public class CatmullClark {
     	temp2.removeAll(temp0);
     	temp2.removeAll(temp1);
     	//System.err.println(he + ":\n\t("+temp0.size()+")" + temp0 + "\n\t("+temp1.size()+")" + temp1 + "\n\t("+temp2.size()+")" + temp2 + "\n");
+    	v0 = null; v1 = null; v2 = null;
     	v0 = temp0.toArray(new Point3d[temp0.size()]);
     	v1 = temp1.toArray(new Point3d[temp1.size()]);
     	v2 = temp2.toArray(new Point3d[temp2.size()]);
@@ -128,6 +206,7 @@ public class CatmullClark {
     
     // an even vertex is a vertex that is already in the mesh
     private static void evenVertices(Face face) {
+		//System.err.println("EvenVertices:");
     	HalfEdge he = face.he;
     	do {
     		// set up distances in temp arrays v0, v1, v2
@@ -138,6 +217,7 @@ public class CatmullClark {
         		System.err.println("Vertex " + he.head + " has degree < 2, skipping.");
         	}
         	// boundary
+            // @fixme this is slightly off??
         	else if(k == 2) {
         		Point3d temp = new Point3d();
         		temp.set(v0[0]);
@@ -149,6 +229,7 @@ public class CatmullClark {
         		temp.set(v1[1]);
         		temp.scale(0.125);
         		child.p.add(temp);
+        		//child.p.set(v0[0]);
         	}
         	// interior
         	else {
@@ -169,6 +250,8 @@ public class CatmullClark {
         		for(Point3d v : v2) temp.add(v);
         		temp.scale(gamma / k);
         		child.p.add(temp);
+        		
+        		//System.err.println("He "+he+" v0 "+v0.length+"; v1 "+v1.length+"; v2 "+v2.length);
         	}
 
         	he.head.child = child;
@@ -229,7 +312,6 @@ public class CatmullClark {
     	}
 		he.half = new Vertex();
     	if(he.twin == null) {
-    		System.err.println("Got here.");
     		// boundary odd
     		Point3d p = he.half.p;
     		p.add(he.head.p);
