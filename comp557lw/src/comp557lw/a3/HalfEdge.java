@@ -2,6 +2,9 @@ package comp557lw.a3;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.vecmath.Point3d;
 
 /**
@@ -24,6 +27,60 @@ public class HalfEdge {
         HalfEdge prev = this;
         while ( prev.next != this ) prev = prev.next;        
         return prev;
+    }
+    
+    // Bernard:
+    // get all the HalfEdges going out he.head. It will have two halfedges in the same face if it is on the boundary
+    public Set<HalfEdge> headOut() {
+    	Set<HalfEdge> vs = new HashSet<>();
+    	HalfEdge cw = this;
+    	do {
+    		// interior
+    		cw = cw.next;
+    		if(cw == null) break;
+    		assert(cw != this);
+    		vs.add(cw);
+    		cw = cw.twin;
+    	} while(cw != this && cw != null);
+    	if(cw == null) {
+	    	// edge case
+    		HalfEdge ccw = this;
+    		while(ccw.twin != null) {
+	    		ccw = ccw.twin;
+	    		vs.add(ccw);
+	    		ccw = ccw.prev();
+	    		assert(ccw != this);
+    		}
+    		// this is the edge that doesn't have an outgoing he
+    		ccw = ccw.prev();
+    		vs.add(ccw);
+    	}
+    	assert(vs.size() >= 3);
+    	return vs;
+    }
+    
+    // this gets the forward edge on a crease and boundary going away from the vertex
+    // it returns null if the he is in the interior
+    public HalfEdge headGetForward() {
+    	HalfEdge cw = this;
+    	do {
+    		cw = cw.next;
+    		if(cw.twin == null) return cw;
+    		cw = cw.twin;
+    	} while(cw != this);
+    	return null;
+    }
+    
+    // this gets the backwards edge on a crease and boundary going towards the vertex
+    // it returns null if the he is in the interior
+    // it is not as fast as headGetForward
+    public HalfEdge headGetBackward() {
+    	HalfEdge ccw = this;
+    	while(ccw.twin != null) {
+    		ccw = ccw.twin.prev();
+    		if(ccw == this) return null;
+    	}
+    	return ccw;
     }
     
     /**

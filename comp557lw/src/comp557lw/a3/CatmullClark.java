@@ -85,37 +85,68 @@ public class CatmullClark {
         
         return heds2;        
     }
-    
-    // get all the HalfEdges going out he.head
-    /*static private Set<HalfEdge> headOut(HalfEdge he) {
-    	Set<HalfEdge> vs = new HashSet<>();
-    	HalfEdge cw = he;
-    	while(cw != null) {
-    		cw = cw.next;
-    		if(cw == null) break;
-    		assert(cw != he);
-    		vs.add(cw);
-    		if(cw.twin == he) break;
-    		cw = cw.twin;
-    	}
-    	if(cw == null) {
-	    	// edge case
-	    	HalfEdge ccw = he;
-	    	while(ccw != null) {
-	    		ccw = ccw.prev();
-	    		assert(ccw != null);
-	    		vs.add(ccw);
-	    		ccw = ccw.next.twin;
-	    		if(ccw == null) break;
-	    		assert(ccw != he);
-	    		ccw = ccw.prev();
-	    		assert(ccw != null && ccw != he);
-	    	}
-    	}
-    	assert(vs.size() >= 3);
-    	//return vs.toArray(new HalfEdge[vs.size()]);
-    	return vs;
-    }*/
+        
+    // an even vertex is a vertex that is already in the mesh
+    private static void evenVertices(Face face) {
+    	Point3d temp;
+		System.err.println("EvenVertices of " + face);
+    	HalfEdge he = face.he;
+    	do {
+    		// multiple hes going to the same vertex don't need recomputing
+    		if(he.head.child != null) continue;
+    		// get outward vertices
+    		Set<HalfEdge> out = he.headOut();
+    		Vertex child = he.head.child = new Vertex();
+    		int k = out.size();
+    		HalfEdge forward = he.headGetForward();
+        	// boundary
+        	if(/*k == 2*/forward != null) {
+        		HalfEdge backward = he.headGetBackward();
+        		temp = new Point3d();
+        		temp.set(he.head.p);
+        		temp.scale(0.75);
+        		child.p.add(temp);
+        		temp = new Point3d();
+        		temp.add(forward.head.p);
+        		temp.scale(0.125);
+        		child.p.add(temp);
+        		temp = new Point3d();
+        		temp.add(backward.prev().head.p);
+        		temp.scale(0.125);
+        		child.p.add(temp);
+        	}
+        	// interior
+        	else {
+        		double beta = 3.0 / (2.0 * k);
+        		double gamma = 1.0 / (4.0 * k);
+        		
+        		temp = new Point3d();
+        		temp.set(he.head.p);
+        		temp.scale(1.0 - beta - gamma);
+        		child.p.add(temp);
+        		
+        		temp = new Point3d();
+        		for(HalfEdge o : out) temp.add(o.head.p);
+        		temp.scale(beta / k);
+        		child.p.add(temp);
+        		
+        		// maybe this is it? I assume quads, but if they are not, close enough. The important thing is the weight.
+        		temp = new Point3d();
+        		for(HalfEdge o : out) temp.add(o.next.head.p); /*{
+            		// 'out' has a special case where the vertex is on the edge and it doesn't have an out vertex
+        			// in this case, the vertex in the polygon adjacent to it is re-used
+        			HalfEdge toVertex = o.prev();
+        			Point3d toAdd = toVertex.head == he.head ? o.next.head.p : toVertex.head.p;
+        			temp.add(toAdd);
+        		}*/
+        		temp.scale(gamma / k);
+        		child.p.add(temp);
+        		
+        		//System.err.println("He "+he+" v0 "+v0.length+"; v1 "+v1.length+"; v2 "+v2.length);
+        	}
+    	} while((he = he.next) != face.he);
+    }
+
     
 /*    static private void wikiEven(HalfEdge he) {
     	if(he.head.child != null) return;
@@ -205,8 +236,8 @@ public class CatmullClark {
     }
     
     // an even vertex is a vertex that is already in the mesh
-    private static void evenVertices(Face face) {
-		//System.err.println("EvenVertices:");
+    private static void evenVerticesNo(Face face) {
+		System.err.println("EvenVertices of " + face);
     	HalfEdge he = face.he;
     	do {
     		// set up distances in temp arrays v0, v1, v2
