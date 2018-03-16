@@ -39,6 +39,11 @@ public class CatmullClark {
         	} while((he = he.next) != face.he);
         }
         
+        // question 4
+        for(Face face : heds.faces) {
+        	subdivideFace(face, heds2);
+        }
+        
         return heds2;        
     }
     
@@ -188,28 +193,86 @@ public class CatmullClark {
     	return he.head.child;
     }*/
     
-    // edge vertex. I added a temporary HalfEdge.half to separate the vertices adding from the connection step
+    // edge vertex. I added a he vertices adding from the connection step. Must be called after face.
     static void divideEdge(HalfEdge he) {
     	// already has a it from the twin
     	if(he.half != null) {
     		assert(he.twin != null && he.half == he.twin.half);
     		return;
     	}
+		he.half = new Vertex();
     	if(he.twin == null) {
     		System.err.println("Got here.");
     		// boundary odd
-    		he.half = new Vertex();
     		Point3d p = he.half.p;
     		p.add(he.head.p);
     		p.add(he.prev().head.p);
     		p.scale(0.5);
     	} else {
+    		assert(he.twin.half == null);
+    		he.twin.half = he.half;
     		// internal odd -- requires face vertices
-    		assert(he.twin.child1 == null);
-    		
+    		Point3d p = he.half.p;
+    		p.add(he.head.p);
+    		p.add(he.leftFace.child.p);
+    		p.add(he.twin.head.p);
+    		p.add(he.twin.leftFace.child.p);
+    		p.scale(0.25);
     	}
     }
         
+    private static void subdivideFace(Face face, HEDS heds) {
+    	HalfEdge he = face.he, prevFromFace = null;
+    	assert(face.he != null);
+    	do {
+    		assert(he != null && he.child1 == null && he.child2 == null && face.child != null);
+    		// add child1. Next is the future toFace.
+    		he.child1 = new HalfEdge();
+    		he.child1.head = he.half;
+    		he.child1.parent = he;
+    		if(he.twin != null && he.twin.child2 != null) he.child1.twin = he.twin.child2;
+    		// add child2. Next is the next iteration's child1.
+    		he.child2 = new HalfEdge();
+    		he.child2.head = he.head.child;
+    		he.child2.parent = he;
+    		if(he.twin != null && he.twin.child1 != null) he.child2.twin = he.twin.child1;
+    		// add toFace and fromFace.
+			HalfEdge toFace = new HalfEdge(), fromFace = new HalfEdge();
+			toFace.head = face.child;
+			fromFace.head = he.half;
+			toFace.twin = fromFace;
+			fromFace.twin = toFace;
+			// link
+			he.child1.next = toFace;
+			fromFace.next = he.child2;
+			// get previous
+    		if(prevFromFace != null) {
+    			// link prev.child2 to child1
+    			assert(prevFromFace.next.next == null);
+    			prevFromFace.next.next = he.child1;
+    			// link toFace with prev.fromFace
+    			assert(toFace.next == null);
+    			toFace.next = prevFromFace;
+    			Face sub = new Face(he.child1);
+    			// fixme: calculate normal
+    			// add it to the model
+    			heds.faces.add(sub);
+    		}
+    		prevFromFace = fromFace;
+    	} while((he = he.next) != face.he);
+		// link prev.child2 to child1
+		assert(prevFromFace != null && prevFromFace.next.next == null);
+		prevFromFace.next.next = he.child1;
+		// link toFace with prev.fromFace
+		assert(he.child1.next.next == null);
+		he.child1.next.next = prevFromFace;
+		Face sub = new Face(he.child1);
+		// fixme: calculate normal
+		// add it to the model
+		heds.faces.add(sub);
+    }
+    
+    
 /*    private static void addChildToEdges(Face face) {
     	HalfEdge prev = face.he.prev();
     	HalfEdge he = face.he;
