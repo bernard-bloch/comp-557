@@ -22,6 +22,7 @@ public class Face {
      * This constructor also sets all of the leftFace members of the 
      * half edges that make up this face.
      * @param he
+     * @fixme Bernard: should be the average of all the normals, normalized, I guess it doesn't matter much
      */
     public Face( HalfEdge he ) {
         this.he = he;
@@ -39,5 +40,5 @@ public class Face {
             loop.leftFace = this;
             loop = loop.next;
         } while ( loop != he );
-    }
+    }    
 }

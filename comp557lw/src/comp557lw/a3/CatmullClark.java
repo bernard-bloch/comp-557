@@ -3,6 +3,7 @@ package comp557lw.a3;
 import java.util.HashSet;
 import java.util.Set;
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 /**
  * Class implementing the Catmull-Clark subdivision scheme
@@ -43,6 +44,32 @@ public class CatmullClark {
         for(Face face : heds.faces) {
         	subdivideFace(face, heds2);
         }
+        
+        // question 5
+        // "Refer to Equation 4.1 on Page 70 of the siggraph 2000 course notes on subdividion surfaces"
+        // there is no such thing. Just guess. Add cross products, not normalized. The greater the distance, the greater the contribution.
+        // This is independent of Catmull-Clark, should be called in another place
+        for(Face face : heds2.faces) {
+        	HalfEdge he = face.he;
+        	do {
+        		assert(he != null);
+        		if(he.head.n == null) he.head.n = new Vector3d();
+                Vector3d v1 = new Vector3d();
+                Vector3d v2 = new Vector3d();
+                Vector3d n = new Vector3d();
+                v1.sub(he.head.p, he.prev().head.p);
+                v2.sub(he.head.p, he.next.head.p);
+                n.cross( v2,v1 );
+                he.head.n.add(n);
+        	} while((he = he.next) != face.he);
+        }
+        for(Face face : heds2.faces) {
+        	HalfEdge he = face.he;
+        	do {
+                he.head.n.normalize();
+        	} while((he = he.next) != face.he);
+        }
+        
         
         return heds2;        
     }
@@ -362,3 +389,4 @@ public class CatmullClark {
     }
      */   
 }
+
