@@ -29,7 +29,39 @@ public class HalfEdge {
         return prev;
     }
     
-    // Bernard:
+    /**
+     * Displays the half edge as a half arrow pointing to the head vertex.
+     * @param drawable
+     */
+    public void display() {
+        Point3d p0 = prev().head.p;
+        Point3d p1 = head.p;
+        Point3d p2 = next.head.p;
+        double x,y,z;
+        
+        glLineWidth(3);
+        glDisable( GL_LIGHTING );
+        glBegin( GL_LINE_STRIP );
+        glColor4f(1,1,1,0.8f);
+        x = p0.x * 0.8 + (p1.x + p2.x) * 0.1;
+        y = p0.y * 0.8 + (p1.y + p2.y) * 0.1;
+        z = p0.z * 0.8 + (p1.z + p2.z) * 0.1;
+        glVertex3d( x, y, z );
+        x = p1.x * 0.8 + (p0.x + p2.x) * 0.1;
+        y = p1.y * 0.8 + (p0.y + p2.y) * 0.1;
+        z = p1.z * 0.8 + (p0.z + p2.z) * 0.1;
+        glVertex3d( x, y, z );
+        x = p1.x * 0.7 + p0.x * 0.1 + p2.x * 0.2;
+        y = p1.y * 0.7 + p0.y * 0.1 + p2.y * 0.2;
+        z = p1.z * 0.7 + p0.z * 0.1 + p2.z * 0.2;
+        glVertex3d( x, y, z );        
+        glEnd();
+        glLineWidth(1);
+        glEnable( GL_LIGHTING );
+    }
+
+    // Jonathan Bernard Bloch 260632216:
+
     // get all the HalfEdges going out he.head. It will have two halfedges in the same face if it is on the boundary
     public Set<HalfEdge> headOut() {
     	Set<HalfEdge> vs = new HashSet<>();
@@ -83,35 +115,32 @@ public class HalfEdge {
     	return ccw;
     }
     
-    /**
-     * Displays the half edge as a half arrow pointing to the head vertex.
-     * @param drawable
-     */
-    public void display() {
-        Point3d p0 = prev().head.p;
-        Point3d p1 = head.p;
-        Point3d p2 = next.head.p;
-        double x,y,z;
-        
-        glLineWidth(3);
-        glDisable( GL_LIGHTING );
-        glBegin( GL_LINE_STRIP );
-        glColor4f(1,1,1,0.8f);
-        x = p0.x * 0.8 + (p1.x + p2.x) * 0.1;
-        y = p0.y * 0.8 + (p1.y + p2.y) * 0.1;
-        z = p0.z * 0.8 + (p1.z + p2.z) * 0.1;
-        glVertex3d( x, y, z );
-        x = p1.x * 0.8 + (p0.x + p2.x) * 0.1;
-        y = p1.y * 0.8 + (p0.y + p2.y) * 0.1;
-        z = p1.z * 0.8 + (p0.z + p2.z) * 0.1;
-        glVertex3d( x, y, z );
-        x = p1.x * 0.7 + p0.x * 0.1 + p2.x * 0.2;
-        y = p1.y * 0.7 + p0.y * 0.1 + p2.y * 0.2;
-        z = p1.z * 0.7 + p0.z * 0.1 + p2.z * 0.2;
-        glVertex3d( x, y, z );        
-        glEnd();
-        glLineWidth(1);
-        glEnable( GL_LIGHTING );
+    // Edge vertex. Must be called after face vertices have computed the child.
+    // I added a temporary variable he.half that stores a halfedge child. The connection is in the next step.
+    public void divideEdge() {
+    	// already has a it from the twin
+    	if(half != null) {
+    		assert(twin != null && half == twin.half);
+    		return;
+    	}
+		half = new Vertex();
+    	if(twin == null) {
+    		// boundary odd
+    		Point3d p = half.p;
+    		p.add(head.p);
+    		p.add(prev().head.p);
+    		p.scale(0.5);
+    	} else {
+    		assert(twin.half == null);
+    		twin.half = half;
+    		// internal odd -- requires face vertices
+    		Point3d p = half.p;
+    		p.add(head.p);
+    		p.add(leftFace.child.p);
+    		p.add(twin.head.p);
+    		p.add(twin.leftFace.child.p);
+    		p.scale(0.25);
+    	}
     }
     
 }

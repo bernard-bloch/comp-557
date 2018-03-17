@@ -10,22 +10,6 @@ import java.util.Map;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-// https://alvinalexander.com/java/java-tuple-classes
-final class Tuple {
-	private final int a, b;
-	public Tuple(int a, int b) { this.a = a; this.b = b; }
-	// equals is wierd because it's going one way and the other
-	public final boolean equals(Object o) {
-		if(this == o || this == null || getClass() != o.getClass()) return false;
-		Tuple x = (Tuple) o;
-		return this.a == x.b && this.b == x.a;
-	}
-	// must be symmetric!
-	public int hashCode() {
-		return a + b;
-	}
-}
-
 /**
  * Half edge data structure.
  * Maintains a list of faces (i.e., one half edge of each) to allow for easy display of geometry.
@@ -46,91 +30,6 @@ public class HEDS {
         // do nothing
     }
         
-    /**
-     * Builds a half edge data structure from the polygon soup   
-     * @param soup
-     */
-    public HEDS( PolygonSoup soup ) {
-        
-        
-        // TODO: Objective 1: create the half edge data structure from a polygon soup
-
-        Map<Tuple, HalfEdge> twins = new HashMap<>();
-        
-        // iterate on faces
-        for(int[] face : soup.faceList) {
-        	if(face.length < 3) {
-        		System.err.println("The face " + face + " is degenarate skipping.");
-        		continue;
-        	}
-			int vertexIndexPrev = face[face.length - 1];
-			HalfEdge hePrev = null, heFirst = null, he = null;
-        	for(int vertexIndex : face) {
-				he = new HalfEdge();
-				he.head = soup.vertexList.get(vertexIndex);
-				if(hePrev != null) {
-					hePrev.next = he;
-				}
-				else {
-					// heFirst doesn't change, used to connect the face out of the loop
-					heFirst = he;
-				}
-				
-				// hashmap twins contains inverse, otherwise add it
-				final Tuple hash = new Tuple(vertexIndexPrev, vertexIndex);
-				HalfEdge twin = twins.get(hash);
-				if(twin == null) {
-					twins.put(hash, he);
-				}
-				else {
-        			assert(twin.twin == null);
-        			twins.remove(hash);
-					he.twin = twin;
-					twin.twin = he;
-				}
-
-				// update for the next iteration
-				vertexIndexPrev = vertexIndex;
-				hePrev = he;
-        	}
-        	assert(heFirst != null && he != null && he.next == null);
-        	he.next = heFirst;
-        	faces.add(new Face(heFirst));
-        }
-        if(!twins.isEmpty()) {
-        	System.err.println("There are still edges with unpaired twins. Hole in the mesh?");
-        	twins.clear();
-        }
-
-        /*
-        // brute force O(n^2)
-        HalfEdge bogus = new HalfEdge();
-        for(Face face1 : faces) {
-        	for(HalfEdge he1 = face1.he; assert(he1),he1.next != face1.he; he1 = he1.next) {
-        		if(he1.twin != null) continue;
-        		he1.twin = bogus; // to not get this one
-        		boolean doneInner = false;
-        		for(Face face2 : faces) {
-        			for(HalfEdge he2 = face2.he; assert(he2),he2.next != face2.he; he2 = he2.next) {
-                		if(he2.twin != null || he1.next.head != he2.head || he2.next.head != he1.head) continue;
-                		System.err.println("Pairing " + he1 + " and " + he2);
-    					he1.twin = he2;
-    					he2.twin = he1;
-    					doneInner = true;
-    					break;
-        			}
-        			if(doneInner) break;
-        		}
-        		// looked through all half edges and didn't find it's twin -- maybe it is open
-        		if(!doneInner) {
-        			he1.twin = null;
-        			System.err.println("Vertex " + he1.head + " on face " + face1 + " doesn't have a correspoding twin.");
-        		}
-        	}
-        }
-        */
-    } 
-    
     /**
      * Draws the half edge data structure by drawing each of its faces.
      * Per vertex normals are used to draw the smooth surface when available,
@@ -202,4 +101,82 @@ public class HEDS {
         glEnd();
         glEnable( GL_LIGHTING );
     }
+
+    /**
+     * Builds a half edge data structure from the polygon soup   
+     * @param soup
+     */
+    public HEDS( PolygonSoup soup ) {
+        
+        
+        // TODO: Objective 1: create the half edge data structure from a polygon soup
+
+        // Jonathan Bernard Bloch 260632216:
+
+    	Map<Tuple, HalfEdge> twins = new HashMap<>();
+        
+        // iterate on faces
+        for(int[] face : soup.faceList) {
+        	if(face.length < 3) {
+        		System.err.println("The face " + face + " is degenarate skipping.");
+        		continue;
+        	}
+			int vertexIndexPrev = face[face.length - 1];
+			HalfEdge hePrev = null, heFirst = null, he = null;
+        	for(int vertexIndex : face) {
+				he = new HalfEdge();
+				he.head = soup.vertexList.get(vertexIndex);
+				if(hePrev != null) {
+					hePrev.next = he;
+				}
+				else {
+					// heFirst doesn't change, used to connect the face out of the loop
+					heFirst = he;
+				}
+				
+				// hashmap twins contains inverse, otherwise add it
+				final Tuple hash = new Tuple(vertexIndexPrev, vertexIndex);
+				HalfEdge twin = twins.get(hash);
+				if(twin == null) {
+					twins.put(hash, he);
+				}
+				else {
+        			assert(twin.twin == null);
+        			twins.remove(hash);
+					he.twin = twin;
+					twin.twin = he;
+				}
+
+				// update for the next iteration
+				vertexIndexPrev = vertexIndex;
+				hePrev = he;
+        	}
+        	assert(heFirst != null && he != null && he.next == null);
+        	he.next = heFirst;
+        	faces.add(new Face(heFirst));
+        }
+        if(!twins.isEmpty()) {
+        	System.err.println("There are still edges with unpaired twins. Hole in the mesh?");
+        	twins.clear();
+        }
+        
+    } 
+    
 }
+
+//https://alvinalexander.com/java/java-tuple-classes
+final class Tuple {
+	private final int a, b;
+	public Tuple(int a, int b) { this.a = a; this.b = b; }
+	// equals is wierd because it's going one way and the other
+	public final boolean equals(Object o) {
+		if(this == o || this == null || getClass() != o.getClass()) return false;
+		Tuple x = (Tuple) o;
+		return this.a == x.b && this.b == x.a;
+	}
+	// must be symmetric!
+	public int hashCode() {
+		return a + b;
+	}
+}
+
