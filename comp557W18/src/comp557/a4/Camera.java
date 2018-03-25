@@ -29,11 +29,41 @@ public class Camera {
     /** The rendered image size */
     public Dimension imageSize = new Dimension(640,480);
 
+    // cache the axis of the camera given 
+    private Vector3d x, y, z;
+
     /**
      * Default constructor
      */
     public Camera() {
     	// do nothing
+        cacheAxis();
+    }
+    
+    private cacheAxis() {
+        Vector3d z = new Vector3d(from);
+        z.sub(to);
+        z.normalize();
+
+        Vector3d y = new Vector3d(up);
+        y.normalize();
+
+        Vector3d x = new Vector3d();
+        x.cross(y,z);
+
+        // orthonormalize
+        y.cross(z,x);
+    }
+    public Vector3d getXAxis() {
+        return x;
+    }
+
+    public Vector3d getYAxis() {
+        return y;
+    }
+
+    public Vector3d getZAxis(){
+        return z;
     }
 }
 

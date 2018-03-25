@@ -45,7 +45,8 @@ public class Scene {
             for ( int j = 0; j < w && !render.isDone(); j++ ) {
             	
                 // TODO: Objective 1: generate a ray (use the generateRay method)
-            	
+            	new Ray(i, j, cam); //generateRay(i, j, , cam, new ray());
+
                 // TODO: Objective 2: test for intersection with scene surfaces
             	
                 // TODO: Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
@@ -80,11 +81,12 @@ public class Scene {
      * @param cam The camera.
      * @param ray Contains the generated ray.
      */
-	public static void generateRay(final int i, final int j, final double[] offset, final Camera cam, Ray ray) {
+	/* What do you have against OOP? This is moved to Ray.java.
+    public static void generateRay(final int i, final int j, final double[] offset, final Camera cam, Ray ray) {
 		
 		// TODO: Objective 1: generate rays given the provided parmeters
 		
-	}
+	}*/
 
 	/**
 	 * Shoot a shadow ray in the scene and get the result.
