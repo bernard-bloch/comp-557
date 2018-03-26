@@ -37,23 +37,20 @@ public class Camera {
      */
     public Camera() {
     	// do nothing
-        cacheAxis();
-    }
-    
-    private cacheAxis() {
-        Vector3d z = new Vector3d(from);
+        z = new Vector3d(from);
         z.sub(to);
         z.normalize();
 
-        Vector3d y = new Vector3d(up);
+        y = new Vector3d(up);
         y.normalize();
 
-        Vector3d x = new Vector3d();
+        x = new Vector3d();
         x.cross(y,z);
 
         // orthonormalize
         y.cross(z,x);
     }
+    
     public Vector3d getXAxis() {
         return x;
     }

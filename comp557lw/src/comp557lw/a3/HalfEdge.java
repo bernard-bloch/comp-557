@@ -20,7 +20,7 @@ public class HalfEdge {
     public HalfEdge child2;
     public HalfEdge parent;
     public Face leftFace;
-    public Vertex half;
+    public Vertex half; // added this temporary to separate adding vertices from connecting edges
 
     /** @return the previous half edge (could just be stored) */
     public HalfEdge prev() {

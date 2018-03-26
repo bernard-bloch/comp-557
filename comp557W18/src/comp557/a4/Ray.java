@@ -75,10 +75,11 @@ public class Ray {
 		v.scale(cam.imageSize.height / 2 + (eyePoint.y - h / 2 + 0.5) / (h / 2));
 
 		// return
-		/*Vector3d ray = new Vector3d(cam.getZAxis().negate());
-		ray.add(u);
-		ray.add(v);*/
-		return new Ray(cam.from, cam.getZAxis().negate().add(u).add(v));
+		eyePoint = cam.from;
+		viewDirection = cam.getZAxis();
+		viewDirection.negate();
+		viewDirection.add(u);
+		viewDirection.add(v);
 	}
 
 }

@@ -26,7 +26,7 @@ public class Face {
      * @param he
      */
     public Face( HalfEdge he ) {
-    	this.no = ++debug_no;
+    	this.no = ++debug_no; // added this unique id for debugging, used in toString
         this.he = he;
         Point3d p0 = he.head.p;
         Point3d p1 = he.next.head.p;
