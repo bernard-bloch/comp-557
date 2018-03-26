@@ -64,22 +64,26 @@ public class Ray {
 	public Ray(final int i, final int j, final Camera cam) {
 		
 		// TODO: Objective 1: generate rays given the provided parmeters
+		
+		// Raytracing p. 8
+		// vector e = eyePoint
+		// vector d = viewDirection
+		// scalar d = 1
+		
 		int w = cam.imageSize.width;
 		int h = cam.imageSize.height;
 
-		// p. 10
-		Vector3d u = new Vector3d(cam.getXAxis());
-		u.scale(cam.imageSize.width / 2 + (eyePoint.x - w / 2 + 0.5) / (w / 2));
-		Vector3d v = new Vector3d(cam.getYAxis());
+		Vector3d u = new Vector3d(cam.getXAxis()); // vector u
+		u.scale(cam.imageSize.width / 2 + (eyePoint.x - w / 2 + 0.5) / (w / 2)); // scalar u
+		Vector3d v = new Vector3d(cam.getYAxis()); // vector v
 		v.negate();
-		v.scale(cam.imageSize.height / 2 + (eyePoint.y - h / 2 + 0.5) / (h / 2));
+		v.scale(cam.imageSize.height / 2 + (eyePoint.y - h / 2 + 0.5) / (h / 2)); // scalar v
 
-		// return
-		eyePoint = cam.from;
-		viewDirection = cam.getZAxis();
-		viewDirection.negate();
-		viewDirection.add(u);
-		viewDirection.add(v);
+		eyePoint = cam.from; // p = e
+		viewDirection = cam.getZAxis(); // w
+		viewDirection.negate(); // -w
+		viewDirection.add(u); // w + u
+		viewDirection.add(v); // w + u + v
 	}
 
 }
