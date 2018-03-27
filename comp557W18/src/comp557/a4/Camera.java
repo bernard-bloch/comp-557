@@ -29,7 +29,7 @@ public class Camera {
     /** The rendered image size */
     public Dimension imageSize = new Dimension(640,480);
 
-    // cache the axis of the camera given 
+    // cache the axis of the camera
     private Vector3d x, y, z;
 
     /**
