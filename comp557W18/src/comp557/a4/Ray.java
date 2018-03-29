@@ -69,21 +69,23 @@ public class Ray {
 		// vector e = eyePoint
 		// vector d = viewDirection
 		// scalar d = 1
-		
-		int w = cam.imageSize.width;
-		int h = cam.imageSize.height;
 
-		Vector3d u = new Vector3d(cam.getXAxis()); // vector u
-		u.scale(cam.imageSize.width / 2 + (eyePoint.x - w / 2 + 0.5) / (w / 2)); // scalar u
-		Vector3d v = new Vector3d(cam.getYAxis()); // vector v
-		v.negate();
-		v.scale(cam.imageSize.height / 2 + (eyePoint.y - h / 2 + 0.5) / (h / 2)); // scalar v
+		// p10 (no, this is wrong)
+		double x = 0.5 - cam.imageSize.width / 2.0 + i;
+		double y = 0.5 - cam.imageSize.height / 2.0 + j;
+		double u = x; // scalar u (p10 mistake, nx divides ALL terms)
+		double v = y; // scalar v
 
+		// p9
 		eyePoint = cam.from; // p = e
-		viewDirection = cam.getZAxis(); // w
-		viewDirection.negate(); // -w
-		viewDirection.add(u); // w + u
-		viewDirection.add(v); // w + u + v
+		viewDirection = new Vector3d(cam.getZAxis()); // d =
+		viewDirection.negate(); // -(scalar d = 1)w
+		Vector3d uVec = new Vector3d(cam.getXAxis());
+		uVec.scale(u);
+		viewDirection.add(uVec); // + u
+		Vector3d vVec = new Vector3d(cam.getYAxis());
+		vVec.scale(v);
+		viewDirection.add(vVec); // + v
 	}
 
 }

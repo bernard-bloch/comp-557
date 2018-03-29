@@ -49,8 +49,10 @@ public class Sphere extends Intersectable {
     	double loc = ray.viewDirection.dot(oc);
     	double disc = (loc * loc) - oc.dot(oc) + radius * radius;
     	if(disc > 0) {
-    		// how do you set it to white?
+        	/*System.out.println("In.");*/
     		result.material = material;
+    	} else {
+        	/*System.out.println("Out.");*/
     	}
     }
     

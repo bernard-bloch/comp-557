@@ -49,6 +49,8 @@ public class Camera {
 
         // orthonormalize
         y.cross(z,x);
+        
+        System.out.println("Camera x:"+x+"; y:"+y+"; z:"+z+".");
     }
     
     public Vector3d getXAxis() {

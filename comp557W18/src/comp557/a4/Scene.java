@@ -41,11 +41,12 @@ public class Scene {
         
         render.init(w, h, showPanel);
         
-        for ( int i = 0; i < h && !render.isDone(); i++ ) {
-            for ( int j = 0; j < w && !render.isDone(); j++ ) {
+        for ( int i = 0; i < h && !render.isDone(); i++ ) { // left to right
+            for ( int j = 0; j < w && !render.isDone(); j++ ) { // bottom to top
             	
                 // TODO: Objective 1: generate a ray (use the generateRay method)
             	Ray ray = new Ray(i, j, cam);
+            	System.out.println("Ray"+i+","+j+" "+ray.eyePoint+" going "+ray.viewDirection+"."); 
 
                 // TODO: Objective 2: test for intersection with scene surfaces
 				IntersectResult ir = new IntersectResult();
@@ -53,27 +54,15 @@ public class Scene {
 				
                 // TODO: Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 
-            	// Here is an example of how to calculate the pixel value.
-            	int r = 0, g, b, a;
-				if(ir.material == null) 
-				{
-					Color3f c = new Color3f(render.bgcolor);
-					r = (int)(255*c.x);
-					g = (int)(255*c.y);
-					b = (int)(255*c.z);
-				}
-				else
-				{
-					Color3f c = new Color3f(1, 1, 1);
-					r = (int)(255*c.x);
-					g = (int)(255*c.y);
-					b = (int)(255*c.z);
-				}
-				a = 255;
-                int argb = (a<<24 | r<<16 | g<<8 | b);    
-                
+            	// Here is an example of how to calculate the pixel value.                
+                Color3f c = new Color3f();
+                if(ir.material == null) {
+                	c.set(render.bgcolor);
+                } else {
+                	c.set(1, 1, 1);
+                }
                 // update the render image
-                render.setPixel(j, i, argb);
+                render.setPixel(j, i, c);
             }
         }
         

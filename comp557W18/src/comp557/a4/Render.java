@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.vecmath.Color3f;
+import javax.vecmath.Color4f;
 
 /**
  * An object to define the image and parameters specific to this render job.
@@ -113,7 +114,21 @@ public class Render extends WindowAdapter {
     	image.setRGB(x, y, argb);    	
     	// redraw the image
     	if( panel != null ) panel.repaint();
-    }    
+    }
+    
+    public void setPixel(int x, int y, Color4f c) {
+		int r = (int)(255*c.x);
+		int g = (int)(255*c.y);
+		int b = (int)(255*c.z);
+		int a = (int)(255*c.w);
+        int argb = (a<<24 | r<<16 | g<<8 | b);
+        setPixel(x, y, argb);
+    }
+    
+    public void setPixel(int x, int y, Color3f c) {
+    	Color4f c4 = new Color4f(c.x, c.y, c.z, 1.0f);
+    	setPixel(x, y, c4);
+    }
     
     /**
      * Saves the rendered image to a PNG file.
