@@ -45,9 +45,12 @@ public class Sphere extends Intersectable {
     	// c = Sphere.center
     	// r = Sphere.radius
     	
+    	System.out.println(this + "; " + ray);
+    	
     	Vector3d oc = new Vector3d(ray.eyePoint); oc.sub(center);
     	double loc = ray.viewDirection.dot(oc);
     	double disc = (loc * loc) - oc.dot(oc) + radius * radius;
+    	System.out.println("sphere disc " + disc);
     	if(disc > 0) {
         	/*System.out.println("In.");*/
     		result.material = material;
@@ -55,5 +58,10 @@ public class Sphere extends Intersectable {
         	/*System.out.println("Out.");*/
     	}
     }
+    
+	public String toString() {
+		return "Sphere" + center + "r" + radius;
+	}
+
     
 }

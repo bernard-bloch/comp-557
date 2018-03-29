@@ -86,5 +86,9 @@ public class Ray {
 		vVec.scale(v);
 		viewDirection.add(vVec); // + v
 	}
+	
+	public String toString() {
+		return "Ray" + eyePoint + "->" + viewDirection;
+	}
 
 }
