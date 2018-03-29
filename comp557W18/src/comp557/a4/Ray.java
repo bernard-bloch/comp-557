@@ -70,11 +70,12 @@ public class Ray {
 		// vector d = viewDirection
 		// scalar d = 1
 
-		// p10 (no, this is wrong)
-		double x = 0.5 - cam.imageSize.width / 2.0 + i;
-		double y = 0.5 - cam.imageSize.height / 2.0 + j;
-		double u = x; // scalar u (p10 mistake, nx divides ALL terms)
-		double v = y; // scalar v
+		// p10
+		double x = 0.5 - cam.imageSize.width * 0.5 + i;
+		double y = 0.5 - cam.imageSize.height * 0.5 + j;
+		double fovMult = Math.tan(cam.fovy * Math.PI / 180.0) / cam.imageSize.height;
+		double u = x * fovMult;
+		double v = y * fovMult;
 
 		// p9
 		eyePoint = cam.from; // p = e
