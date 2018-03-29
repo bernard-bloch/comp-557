@@ -71,11 +71,9 @@ public class Ray {
 		// scalar d = 1
 
 		// p10
-		double x = 0.5 - cam.imageSize.width * 0.5 + i;
-		double y = 0.5 - cam.imageSize.height * 0.5 + j;
 		double fovMult = Math.tan(cam.fovy * Math.PI / 180.0) / cam.imageSize.height;
-		double u = x * fovMult;
-		double v = y * fovMult;
+		double u = (0.5 - cam.imageSize.width * 0.5 + i) * fovMult;
+		double v = (0.5 - cam.imageSize.height * 0.5 + j) * fovMult;
 
 		// p9
 		eyePoint = cam.from; // p = e
