@@ -85,6 +85,8 @@ public class Ray {
 		Vector3d vVec = new Vector3d(cam.getYAxis());
 		vVec.scale(v);
 		viewDirection.add(vVec); // + v
+		// normalize, it makes testing shapes easier
+		viewDirection.normalize();
 	}
 	
 	public String toString() {
