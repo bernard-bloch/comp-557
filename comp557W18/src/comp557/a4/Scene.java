@@ -45,18 +45,31 @@ public class Scene {
             for ( int j = 0; j < w && !render.isDone(); j++ ) {
             	
                 // TODO: Objective 1: generate a ray (use the generateRay method)
-            	new Ray(i, j, cam); //generateRay(i, j, , cam, new ray());
+            	Ray ray = new Ray(i, j, cam);
 
                 // TODO: Objective 2: test for intersection with scene surfaces
-            	
+				IntersectResult ir = new IntersectResult();
+            	for(Intersectable il : surfaceList) il.intersect(ray, ir);
+				
                 // TODO: Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 
             	// Here is an example of how to calculate the pixel value.
-            	Color3f c = new Color3f(render.bgcolor);
-            	int r = (int)(255*c.x);
-                int g = (int)(255*c.y);
-                int b = (int)(255*c.z);
-                int a = 255;
+            	int r = 0, g, b, a;
+				if(ir.material == null) 
+				{
+					Color3f c = new Color3f(render.bgcolor);
+					r = (int)(255*c.x);
+					g = (int)(255*c.y);
+					b = (int)(255*c.z);
+				}
+				else
+				{
+					Color3f c = new Color3f(1, 1, 1);
+					r = (int)(255*c.x);
+					g = (int)(255*c.y);
+					b = (int)(255*c.z);
+				}
+				a = 255;
                 int argb = (a<<24 | r<<16 | g<<8 | b);    
                 
                 // update the render image
