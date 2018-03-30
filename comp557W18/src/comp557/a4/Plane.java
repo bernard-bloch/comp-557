@@ -1,5 +1,7 @@
 package comp557.a4;
 
+import java.util.List;
+
 import javax.vecmath.Vector3d;
 
 /**
@@ -25,7 +27,7 @@ public class Plane extends Intersectable {
 
         
     @Override
-    public void intersect( Ray ray, IntersectResult result ) {
+    public void intersect( Ray ray, List<IntersectResult> results ) {
     
         // TODO: Objective 4: intersection of ray with plane
     	

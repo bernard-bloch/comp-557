@@ -1,5 +1,7 @@
 package comp557.a4;
 
+import java.util.List;
+
 /**
  * Abstract class for an intersectable surface 
  */
@@ -21,6 +23,6 @@ public abstract class Intersectable {
 	 * @param ray
 	 * @param result
 	 */
-    public abstract void intersect(Ray ray, IntersectResult result);
+    public abstract void intersect(Ray ray, List<IntersectResult> results);
     
 }

@@ -1,6 +1,7 @@
 package comp557.a4;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Mesh extends Intersectable {
@@ -22,7 +23,7 @@ public class Mesh extends Intersectable {
 	}			
 		
 	@Override
-	public void intersect(Ray ray, IntersectResult result) {
+	public void intersect(Ray ray, List<IntersectResult> results) {
 		
 		// TODO: Objective 7: ray triangle intersection for meshes
 		

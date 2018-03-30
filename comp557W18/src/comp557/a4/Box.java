@@ -1,5 +1,7 @@
 package comp557.a4;
 
+import java.util.List;
+
 import javax.vecmath.Point3d;
 
 /**
@@ -20,7 +22,7 @@ public class Box extends Intersectable {
     }	
 
 	@Override
-	public void intersect(Ray ray, IntersectResult result) {
+	public void intersect(Ray ray, List<IntersectResult> results) {
 		// TODO: Objective 6: intersection of Ray with axis aligned box
 	}	
 

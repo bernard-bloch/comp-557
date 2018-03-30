@@ -49,16 +49,15 @@ public class Scene {
             	System.out.println("Ray"+i+","+j+" "+ray.eyePoint+" going "+ray.viewDirection+"."); 
 
                 // TODO: Objective 2: test for intersection with scene surfaces
-				IntersectResult ir = new IntersectResult();
-            	for(Intersectable il : surfaceList) il.intersect(ray, ir);
+				List<IntersectResult> irs = new ArrayList<>();
+            	for(Intersectable il : surfaceList) il.intersect(ray, irs);
 				
                 // TODO: Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 
             	// Here is an example of how to calculate the pixel value.                
                 Color3f c = new Color3f();
-                if(ir.material == null) {
-                	c.set(render.bgcolor);
-                } else {
+                c.set(render.bgcolor);
+                for(IntersectResult ir : irs) {
                 	c.set(1, 1, 1);
                 }
                 // update the render image
