@@ -56,6 +56,7 @@ public class SceneNode extends Intersectable {
     
     @Override
     public void intersect(Ray ray, List<IntersectResult> results) {
+    	IntersectRes..ray.eyePoint.x..ray.eyePoint.x..ray.eyePoint.x..
     	tmpRay.eyePoint.set(ray.eyePoint);
     	tmpRay.viewDirection.set(ray.viewDirection);
     	Minv.transform(tmpRay.eyePoint);

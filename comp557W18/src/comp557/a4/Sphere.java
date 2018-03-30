@@ -42,19 +42,24 @@ public class Sphere extends Intersectable {
     
         // TODO: Objective 2: intersection of ray with sphere
     	
-    	System.out.println(this + "; " + ray);
+    	//System.out.println(this + "; " + ray);
     	// ray: p + td
     	// circle: |x - c|^2 = r^2
     	Vector3d p_min_c = new Vector3d(ray.eyePoint);
     	p_min_c.sub(center);
     	double d_dot_p_min_c = ray.viewDirection.dot(p_min_c);
     	double disc = d_dot_p_min_c * d_dot_p_min_c - p_min_c.lengthSquared() + radius*radius;    	
-    	if(disc > 0)
-    	{
-    		IntersectResult result = new IntersectResult();
-    		result.material = material;
-    		results.add(result);
-    	}
+    	// no intersection
+    	if(disc < 0) return;
+    	// calculate parameters, want the first intersection
+    	double t = -d_dot_p_min_c - Math.sqrt(disc);
+    	System.err.println("t="+t);
+    	Point3d intersect = new Point3d(ray.viewDirection);
+    	intersect.scaleAdd(t, ray.eyePoint);
+    	Vector3d normal = new Vector3d(center);
+    	normal.sub(intersect);
+    	normal.normalize();
+    	results.add(new IntersectResult(normal, intersect, material, t));
     }
     
 	public String toString() {

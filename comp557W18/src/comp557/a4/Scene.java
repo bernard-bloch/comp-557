@@ -1,6 +1,7 @@
 package comp557.a4;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,28 @@ public class Scene {
     }
     
     /**
+     * @param irs Given a list of intersection results.
+     * @return The color of the given pixel.
+     */
+    private Color3f colour(List<IntersectResult> irs) {
+    	// sort the results based on t
+    	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
+    	Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
+    	float whiteAlpha = 0.5f;
+    	// start off with a background and alpha is 0
+    	Color3f c = new Color3f(render.bgcolor);
+    	double alpha = 0.0;
+    	// each intersection result adds to the alpha until it get's full or the background is partially visible
+        for(IntersectResult ir : irs) {
+        	System.out.println("Scene: intersected " + ir);
+        	c.interpolate(white, whiteAlpha); // fixme
+        	alpha += whiteAlpha;
+        	if(alpha >= 1.0f) break;
+        }
+        return c;
+    }
+    
+    /**
      * renders the scene
      */
     public void render(boolean showPanel) {
@@ -46,7 +69,7 @@ public class Scene {
             	
                 // TODO: Objective 1: generate a ray (use the generateRay method)
             	Ray ray = new Ray(i, j, cam);
-            	System.out.println("Ray"+i+","+j+" "+ray.eyePoint+" going "+ray.viewDirection+"."); 
+            	//System.out.println("Ray"+i+","+j+" "+ray.eyePoint+" going "+ray.viewDirection+"."); 
 
                 // TODO: Objective 2: test for intersection with scene surfaces
 				List<IntersectResult> irs = new ArrayList<>();
@@ -55,13 +78,8 @@ public class Scene {
                 // TODO: Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 
             	// Here is an example of how to calculate the pixel value.                
-                Color3f c = new Color3f();
-                c.set(render.bgcolor);
-                for(IntersectResult ir : irs) {
-                	c.set(1, 1, 1);
-                }
                 // update the render image
-                render.setPixel(j, i, c);
+                render.setPixel(j, i, colour(irs));
             }
         }
         
@@ -73,21 +91,8 @@ public class Scene {
         
     }
     
-    /**
-     * Generate a ray through pixel (i,j).
-     * 
-     * @param i The pixel row.
-     * @param j The pixel column.
-     * @param offset The offset from the center of the pixel, in the range [-0.5,+0.5] for each coordinate. 
-     * @param cam The camera.
-     * @param ray Contains the generated ray.
-     */
-	/* What do you have against OOP? This is moved to Ray.java.
-    public static void generateRay(final int i, final int j, final double[] offset, final Camera cam, Ray ray) {
-		
-		// TODO: Objective 1: generate rays given the provided parmeters
-		
-	}*/
+	// TODO: Objective 1: generate rays given the provided parmeters
+	// What do you have against OOP? This is moved to constructor in Ray.java.
 
 	/**
 	 * Shoot a shadow ray in the scene and get the result.
@@ -107,3 +112,4 @@ public class Scene {
 		return false;
 	}    
 }
+
