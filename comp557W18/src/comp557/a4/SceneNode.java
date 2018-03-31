@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 import comp557.a4.IntersectResult;
 import comp557.a4.Intersectable;
@@ -50,13 +52,13 @@ public class SceneNode extends Intersectable {
     	this.children = new LinkedList<Intersectable>();
     }
     
-    private IntersectResult tmpResult = new IntersectResult();
+    //private IntersectResult tmpResult = new IntersectResult();
     
-    private Ray tmpRay = new Ray();
+    //private Ray tmpRay = new Ray();
     
     @Override
     public void intersect(Ray ray, List<IntersectResult> results) {
-    	IntersectRes..ray.eyePoint.x..ray.eyePoint.x..ray.eyePoint.x..
+    	/*
     	tmpRay.eyePoint.set(ray.eyePoint);
     	tmpRay.viewDirection.set(ray.viewDirection);
     	Minv.transform(tmpRay.eyePoint);
@@ -64,17 +66,27 @@ public class SceneNode extends Intersectable {
     	tmpResult.t = Double.POSITIVE_INFINITY;
     	tmpResult.n.set(0, 0, 1);
         for ( Intersectable s : children ) {
-            s.intersect( tmpRay, /*tmpResult*/results );
+            s.intersect( tmpRay, tmpResult );
         }
-        /* @fixme
-         * if ( tmpResult.t > 1e-9 && tmpResult.t < result.t ) {
+        if ( tmpResult.t > 1e-9 && tmpResult.t < result.t ) {
         	M.transform(tmpResult.n);
         	M.transform(tmpResult.p);
         	result.n.set(tmpResult.n);
         	result.p.set(tmpResult.p); 
         	result.t = tmpResult.t;
         	result.material = (this.material == null) ? tmpResult.material : this.material;
-        }*/
+        }
+        */
+    	Ray tmpRay = new Ray(ray.eyePoint, ray.viewDirection);
+    	Minv.transform(tmpRay.eyePoint);
+    	Minv.transform(tmpRay.viewDirection);    	
+    	Vector3d n = new Vector3d(0, 0, 1);
+    	Point3d p = new Point3d(ray.eyePoint);
+    	double t = Double.POSITIVE_INFINITY;
+    	results.add(new IntersectResult(n, p, null, t));
+        for ( Intersectable s : children ) {
+            s.intersect( tmpRay, results);
+        }
     }
     
 }
