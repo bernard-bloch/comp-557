@@ -6,17 +6,27 @@ import javax.vecmath.Vector3d;
 public class Ray {
 	
 	/** Originating point for the ray */
-	public Point3d eyePoint = new Point3d( 0, 0, 0 );
+	private Point3d eyePoint = new Point3d( 0, 0, 0 );
 	
 	/** The direction of the ray */
-	public Vector3d viewDirection = new Vector3d( 0, 0, -1 );
+	private Vector3d viewDirection = new Vector3d( 0, 0, -1 );
 
 	/**
 	 * Default constructor.  Be careful not to use the ray before
 	 * setting the eye point and view direction!
+	 * 
+	 * This is a really bad idea!!!
 	 */
-	public Ray() {
+	/*public Ray() {
 		// do nothing
+	}*/
+	
+	/**
+	 * Copy constructor.
+	 */
+	public Ray(Ray copy) {
+		eyePoint.set(copy.eyePoint);
+		viewDirection.set(copy.viewDirection);
 	}
 	
 	/** 
@@ -87,6 +97,14 @@ public class Ray {
 		viewDirection.add(vVec); // + v
 		// normalize, it makes testing shapes easier
 		viewDirection.normalize();
+	}
+	
+	public Point3d getEyePoint() {
+		return eyePoint;
+	}
+	
+	public Vector3d getViewDirection() {
+		return viewDirection;
 	}
 	
 	public String toString() {

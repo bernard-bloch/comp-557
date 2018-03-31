@@ -45,17 +45,17 @@ public class Sphere extends Intersectable {
     	//System.out.println(this + "; " + ray);
     	// ray: p + td
     	// circle: |x - c|^2 = r^2
-    	Vector3d p_min_c = new Vector3d(ray.eyePoint);
+    	Vector3d p_min_c = new Vector3d(ray.getEyePoint());
     	p_min_c.sub(center);
-    	double d_dot_p_min_c = ray.viewDirection.dot(p_min_c);
+    	double d_dot_p_min_c = ray.getViewDirection().dot(p_min_c);
     	double disc = d_dot_p_min_c * d_dot_p_min_c - p_min_c.lengthSquared() + radius*radius;    	
     	// no intersection
     	if(disc < 0) return;
     	// calculate parameters, want the first intersection
     	double t = -d_dot_p_min_c - Math.sqrt(disc);
     	System.err.println("t="+t);
-    	Point3d intersect = new Point3d(ray.viewDirection);
-    	intersect.scaleAdd(t, ray.eyePoint);
+    	Point3d intersect = new Point3d(ray.getViewDirection());
+    	intersect.scaleAdd(t, ray.getEyePoint());
     	Vector3d normal = new Vector3d(center);
     	normal.sub(intersect);
     	normal.normalize();
