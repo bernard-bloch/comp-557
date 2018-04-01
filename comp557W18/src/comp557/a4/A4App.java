@@ -107,11 +107,6 @@ public class A4App extends JFrame implements Runnable {
 			
 			scene.render(true);
 			
-			System.err.println("A4App: lights:");
-			for(Light l : Light.getAllLights()) {
-				System.err.println("A4App lights: " + l);
-			}
-			
 			double ptime = (double)((rstart-pstart)/1E9);
 			double rtime = (double)((System.nanoTime()-rstart)/1E9);
 			

@@ -37,4 +37,8 @@ public class Light /*implements Iterable<Light>*/ {
     static public List<Light> getAllLights() {
     	return allLights;
     }
+    
+    public String toString() {
+    	return name+" at "+from;
+    }
 }

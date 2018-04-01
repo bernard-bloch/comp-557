@@ -55,8 +55,8 @@ public class Sphere extends Intersectable {
     	double t = -d_dot_p_min_c - Math.sqrt(disc);
     	Point3d intersect = new Point3d(ray.getViewDirection());
     	intersect.scaleAdd(t, ray.getEyePoint());
-    	Vector3d normal = new Vector3d(center);
-    	normal.sub(intersect);
+    	Vector3d normal = new Vector3d(intersect);
+    	normal.sub(center);
     	normal.normalize();
     	results.add(new IntersectResult(normal, intersect, material, t));
     }

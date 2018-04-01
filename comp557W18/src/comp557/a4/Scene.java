@@ -49,39 +49,53 @@ public class Scene {
     	colour.w = 1;
     }    
     
+	static boolean isOnce = true;
     /**
      * @param irs Given a list of intersection results.
      * @return The color of the given pixel.
      */
     private Color4f colour(List<IntersectResult> irs) {
-    	// sort the results based on t
+    	// sort the results based on t. I go forward and add.
     	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
+    	// get all the lights
     	List<Light> lights = Light.getAllLights();
+    	// the colour starts off at 0
     	Color4f c = new Color4f();
     	// each intersection result adds to the alpha until it get's full
         for(IntersectResult ir : irs) {
-        	/* diffuse */
         	Material m = ir.getMaterial();
         	assert(m != null);
-        	/*
+        	// add contributions from lights. Ignore alpha component. What's an alpha on a light?
+        	Color3f colour3 = new Color3f();
         	for(Light light : lights) {
-        		// 07Lighting p5: Ld = kd I max(0, n*l)
+        		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
         		Vector3d l = new Vector3d(light.from);
         		l.sub(ir.getPoint());
         		l.normalize();
         		float nl = (float)ir.getNormal().dot(l);
         		if(nl <= 0.0) continue;
-        		Color4f kd = m.diffuse;
-        		Color4f I = light.color;
-        		Color4f Ld = new Color4f(kd.x * I.x, kd.y * I.y, kd.z * I.z, kd.w * I.w);
+        		Color3f kd = new Color3f(m.diffuse.x, m.diffuse.y, m.diffuse.z);
+        		Color3f I = new Color3f(light.color.x, light.color.y, light.color.z);
+        		Color3f Ld = new Color3f(kd.x * I.x, kd.y * I.y, kd.z * I.z);
         		Ld.scale(nl);
-        		// add to c
-        		//alphaBlend(c, Ld);
-        		c.add(Ld);
+        		// add to colour3
+        		colour3.add(Ld);
+        		if(isOnce) {
+        			System.out.println("Scene " + ir.getNormal() + ": " + light + " to " + ir.getPoint() + " = " + l + " n*l " + nl);
+        			isOnce = false;
+        		}
         	}
-        	*/
-        	alphaBlend(c, m.diffuse);
-        	if(c.w >= 1.0f) { System.err.println(c.w);break;}
+        	// the contribution of the colour and the materials alpha
+        	Color4f colour4 = new Color4f(colour3.x, colour3.y, colour3.z, m.diffuse.w);
+        	//Color4f colour4 = new Color4f();
+        	//colour4.x = (float)(ir.getNormal().x > 0.0 ? ir.getNormal().x : 0.0);
+        	//colour4.y = (float)(ir.getNormal().y > 0.0 ? ir.getNormal().y : 0.0);
+        	//colour4.z = (float)(ir.getNormal().z > 0.0 ? ir.getNormal().z : 0.0);
+        	//colour4.w = 1.0f;
+    		alphaBlend(c, colour4);
+    		//c.add(colour4);
+        	// if the alpha is 1, just stop
+        	if(c.w >= 1.0f) break;
         }
         // turn on background. This will render an all alpha = 1
         alphaBlend(c, render.bgcolor);
@@ -101,7 +115,7 @@ public class Scene {
         
         // Material has no constructor arguments and all public data
         // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply
-        Material.premultiplyAll();
+        //Material.premultiplyAll();
         
         for ( int i = 0; i < h && !render.isDone(); i++ ) { // left to right
             for ( int j = 0; j < w && !render.isDone(); j++ ) { // bottom to top

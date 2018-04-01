@@ -77,6 +77,7 @@ public class SceneNode extends Intersectable {
         	result.material = (this.material == null) ? tmpResult.material : this.material;
         }
         */
+    	System.err.println("SceneNode!!");
     	Ray tmpRay = new Ray(ray);
     	Minv.transform(tmpRay.getEyePoint());
     	Minv.transform(tmpRay.getViewDirection());    	
