@@ -1,13 +1,12 @@
 package comp557.a4;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.vecmath.Color4f;
 import javax.vecmath.Point3d;
 
-public class Light implements Iterable<Light> {
+public class Light /*implements Iterable<Light>*/ {
 	
 	/** Light name */
     public String name = "";
@@ -35,8 +34,7 @@ public class Light implements Iterable<Light> {
     	allLights.add(this);
     }
     
-    // satifies iterator
-    public Iterator<Light> iterator() {
-    	return allLights.iterator();
+    static public List<Light> getAllLights() {
+    	return allLights;
     }
 }

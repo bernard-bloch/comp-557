@@ -26,11 +26,38 @@ public class Material {
     /** Specular hardness, or exponent, default to a reasonable value */ 
     public float shinyness = 64;
  
+    private boolean isPremultiplied = false;
+    
     /**
      * Default constructor
      */
     public Material() {
     	// do nothing
+    }
+    
+    public String toString() {
+    	return name;
+    }
+    
+    // https://en.wikipedia.org/wiki/Alpha_compositing
+    private static void premultiply(Color4f c) {
+		if(c.w < 0.001) {
+			c.set(0.0f, 0.0f, 0.0f, 0.0f);
+			return;
+		}
+		c.x /= c.w;
+		c.y /= c.w;
+		c.z /= c.w;
+    }
+    
+    public static void premultiplyAll() {
+    	// https://stackoverflow.com/questions/46898/how-to-efficiently-iterate-over-each-entry-in-a-map
+    	materialMap.forEach((k, v) -> {
+    		if(v.isPremultiplied) return;
+    		premultiply(v.diffuse);
+    		premultiply(v.specular);
+    		v.isPremultiplied = true;
+    	} );
     }
     
 }

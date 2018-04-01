@@ -9,22 +9,21 @@ import javax.vecmath.Vector3d;
 public class IntersectResult {
 	
 	/** The normal at the intersection */ 
-	private Vector3d n = new Vector3d();
+	private Vector3d n;// = new Vector3d();
 	
 	/** Intersection position */
-	private Point3d p = new Point3d();
+	private Point3d p;// = new Point3d();
 	
 	/** The material of the intersection */
-	private Material material = null;
+	private Material material;// = null;
 		
 	/** Parameter on the ray giving the position of the intersection */
-	private double t = Double.POSITIVE_INFINITY; 
+	private double t;// = Double.POSITIVE_INFINITY; 
 	
 	/**
 	 * Default constructor.
 	 */
 	IntersectResult(Vector3d n, Point3d p, Material m, double t) {
-		// do nothing
 		this.n = n;
 		this.p = p;
 		this.material = m;
@@ -43,5 +42,21 @@ public class IntersectResult {
 	
 	public double getT() {
 		return t;
+	}
+	
+	public Vector3d getNormal() {
+		return n;
+	}
+	
+	public Point3d getPoint() {
+		return p;
+	}
+	
+	public Material getMaterial() {
+		return material;
+	}
+	
+	public String toString() {
+		return "IR(" + t + ") = " + p + ", " + material;
 	}
 }

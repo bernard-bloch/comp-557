@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.vecmath.Color3f;
+import javax.vecmath.Color4f;
+import javax.vecmath.Vector3d;
+import javax.vecmath.Vector4f;
 
 /**
  * Simple scene loader based on XML file format.
@@ -31,25 +34,63 @@ public class Scene {
     	this.render = new Render();
     }
     
+	// https://en.wikipedia.org/wiki/Alpha_compositing
+    private void alphaBlend(Color4f colour, Color4f add) {
+    	colour.x = colour.x + add.x * (1.0f - colour.w);
+    	colour.y = colour.y + add.y * (1.0f - colour.w);
+    	colour.z = colour.z + add.z * (1.0f - colour.w);
+    	colour.w = colour.w + add.w * (1.0f - colour.w);
+    }
+    
+    private void alphaBlend(Color4f colour, Color3f add) {
+    	colour.x = colour.x + add.x * (1.0f - colour.w);
+    	colour.y = colour.y + add.y * (1.0f - colour.w);
+    	colour.z = colour.z + add.z * (1.0f - colour.w);
+    	colour.w = 1;
+    }    
+    
     /**
      * @param irs Given a list of intersection results.
      * @return The color of the given pixel.
      */
-    private Color3f colour(List<IntersectResult> irs) {
+    private Color4f colour(List<IntersectResult> irs) {
     	// sort the results based on t
     	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
     	Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
     	float whiteAlpha = 0.5f;
+    	List<Light> lights = Light.getAllLights();
     	// start off with a background and alpha is 0
-    	Color3f c = new Color3f(render.bgcolor);
-    	double alpha = 0.0;
+    	//Color3f c = new Color3f(render.bgcolor);
+    	//double alpha = 0.0;
+    	Color4f c = new Color4f();
     	// each intersection result adds to the alpha until it get's full or the background is partially visible
         for(IntersectResult ir : irs) {
+        	/* diffuse */
+        	Material m = ir.getMaterial();
+        	assert(m != null);
+        	/*
+        	for(Light light : lights) {
+        		// 07Lighting p5: Ld = kd I max(0, n*l)
+        		Vector3d l = new Vector3d(light.from);
+        		l.sub(ir.getPoint());
+        		l.normalize();
+        		float nl = (float)ir.getNormal().dot(l);
+        		if(nl <= 0.0) continue;
+        		Color4f kd = m.diffuse;
+        		Color4f I = light.color;
+        		Color4f Ld = new Color4f(kd.x * I.x, kd.y * I.y, kd.z * I.z, kd.w * I.w);
+        		Ld.scale(nl);
+        		// add to c
+        		//alphaBlend(c, Ld);
+        		c.add(Ld);
+        	}
         	System.out.println("Scene: intersected " + ir);
-        	c.interpolate(white, whiteAlpha); // fixme
-        	alpha += whiteAlpha;
-        	if(alpha >= 1.0f) break;
+        	if(c.w > 0.999) break;
+        	*/
+        	c.add(m.diffuse);
         }
+        // turn on background
+        alphaBlend(c, render.bgcolor);
         return c;
     }
     
@@ -63,6 +104,10 @@ public class Scene {
         int h = cam.imageSize.height;
         
         render.init(w, h, showPanel);
+        
+        // Material has no constructor arguments and all public data
+        // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply
+        Material.premultiplyAll();
         
         for ( int i = 0; i < h && !render.isDone(); i++ ) { // left to right
             for ( int j = 0; j < w && !render.isDone(); j++ ) { // bottom to top

@@ -6,10 +6,10 @@ import javax.vecmath.Vector3d;
 public class Ray {
 	
 	/** Originating point for the ray */
-	private Point3d eyePoint = new Point3d( 0, 0, 0 );
+	private final Point3d eyePoint;// = new Point3d( 0, 0, 0 );
 	
 	/** The direction of the ray */
-	private Vector3d viewDirection = new Vector3d( 0, 0, -1 );
+	private final Vector3d viewDirection;// = new Vector3d( 0, 0, -1 );
 
 	/**
 	 * Default constructor.  Be careful not to use the ray before
@@ -25,8 +25,8 @@ public class Ray {
 	 * Copy constructor.
 	 */
 	public Ray(Ray copy) {
-		eyePoint.set(copy.eyePoint);
-		viewDirection.set(copy.viewDirection);
+		eyePoint = new Point3d(copy.eyePoint);
+		viewDirection = new Vector3d(copy.viewDirection);
 	}
 	
 	/** 
@@ -35,30 +35,9 @@ public class Ray {
 	 * @param viewDirection
 	 */
 	public Ray( Point3d eyePoint, Vector3d viewDirection ) {
-		this.eyePoint.set(eyePoint);
-		this.viewDirection.set(viewDirection);
+		this.eyePoint = new Point3d(eyePoint);
+		this.viewDirection = new Vector3d(viewDirection);
 	}
-
-	/**
-	 * Setup the ray.
-	 * @param eyePoint
-	 * @param viewDirection
-	 */
-	public void set( Point3d eyePoint, Vector3d viewDirection ) {
-		this.eyePoint.set(eyePoint);
-		this.viewDirection.set(viewDirection);
-	}
-	
-	/**
-	 * Computes the location of a point along the ray using parameter t.
-	 * @param t
-	 * @param p
-	 */
-	public void getPoint( double t, Point3d p ) {
-		p.scale( t, viewDirection );
-		p.add( eyePoint );
-	}
-
 
     /**
      * Generate a ray through pixel (i,j).
@@ -97,6 +76,28 @@ public class Ray {
 		viewDirection.add(vVec); // + v
 		// normalize, it makes testing shapes easier
 		viewDirection.normalize();
+	}
+
+	/**
+	 * Setup the ray.
+	 * @param eyePoint
+	 * @param viewDirection
+	 * 
+	 * Why?
+	 */
+	/*public void set( Point3d eyePoint, Vector3d viewDirection ) {
+		this.eyePoint.set(eyePoint);
+		this.viewDirection.set(viewDirection);
+	}*/
+	
+	/**
+	 * Computes the location of a point along the ray using parameter t.
+	 * @param t
+	 * @param p
+	 */
+	public void getPoint( double t, Point3d p ) {
+		p.scale( t, viewDirection );
+		p.add( eyePoint );
 	}
 	
 	public Point3d getEyePoint() {
