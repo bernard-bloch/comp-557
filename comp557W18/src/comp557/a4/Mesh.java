@@ -23,10 +23,10 @@ public class Mesh extends Intersectable {
 	}			
 		
 	@Override
-	public void intersect(Ray ray, List<IntersectResult> results) {
+	public IntersectResult intersect(Ray ray) {
 		
 		// TODO: Objective 7: ray triangle intersection for meshes
-		
+		return null;
 	}
 
 }

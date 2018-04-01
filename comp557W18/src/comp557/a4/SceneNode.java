@@ -52,42 +52,21 @@ public class SceneNode extends Intersectable {
     	this.children = new LinkedList<Intersectable>();
     }
     
-    //private IntersectResult tmpResult = new IntersectResult();
-    
-    //private Ray tmpRay = new Ray();
-    
+    /**
+     * This is much more understandable.
+     */
     @Override
-    public void intersect(Ray ray, List<IntersectResult> results) {
-    	/*
-    	tmpRay.eyePoint.set(ray.eyePoint);
-    	tmpRay.viewDirection.set(ray.viewDirection);
-    	Minv.transform(tmpRay.eyePoint);
-    	Minv.transform(tmpRay.viewDirection);    	
-    	tmpResult.t = Double.POSITIVE_INFINITY;
-    	tmpResult.n.set(0, 0, 1);
+    public IntersectResult intersect( Ray ray ) {
+    	Ray tmpRay = new Ray(ray, Minv);
+    	IntersectResult tmpResult = null;
         for ( Intersectable s : children ) {
-            s.intersect( tmpRay, tmpResult );
+            IntersectResult r = s.intersect( tmpRay );
+            if(r == null) continue;
+            if(tmpResult == null || tmpResult.getT() > r.getT()) tmpResult = r;
         }
-        if ( tmpResult.t > 1e-9 && tmpResult.t < result.t ) {
-        	M.transform(tmpResult.n);
-        	M.transform(tmpResult.p);
-        	result.n.set(tmpResult.n);
-        	result.p.set(tmpResult.p); 
-        	result.t = tmpResult.t;
-        	result.material = (this.material == null) ? tmpResult.material : this.material;
-        }
-        */
-    	System.err.println("SceneNode!!");
-    	Ray tmpRay = new Ray(ray);
-    	Minv.transform(tmpRay.getEyePoint());
-    	Minv.transform(tmpRay.getViewDirection());    	
-    	Vector3d n = new Vector3d(0, 0, 1);
-    	Point3d p = new Point3d(ray.getEyePoint());
-    	double t = Double.POSITIVE_INFINITY;
-    	results.add(new IntersectResult(n, p, null, t));
-        for ( Intersectable s : children ) {
-            s.intersect( tmpRay, results);
-        }
+        if(tmpResult == null) return null;
+        tmpResult.transform(M);
+        return tmpResult;
     }
     
     public String toString() {

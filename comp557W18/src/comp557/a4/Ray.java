@@ -1,32 +1,32 @@
 package comp557.a4;
 
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 public class Ray {
 	
 	/** Originating point for the ray */
-	private final Point3d eyePoint;// = new Point3d( 0, 0, 0 );
+	private final Point3d eyePoint;
 	
 	/** The direction of the ray */
-	private final Vector3d viewDirection;// = new Vector3d( 0, 0, -1 );
+	private final Vector3d viewDirection;
 
-	/**
-	 * Default constructor.  Be careful not to use the ray before
-	 * setting the eye point and view direction!
-	 * 
-	 * This is a really bad idea!!!
-	 */
-	/*public Ray() {
-		// do nothing
-	}*/
-	
 	/**
 	 * Copy constructor.
 	 */
 	public Ray(Ray copy) {
 		eyePoint = new Point3d(copy.eyePoint);
 		viewDirection = new Vector3d(copy.viewDirection);
+	}
+	
+	/**
+	 * Creates a new ray from the copy transformed by mat.
+	 */
+	public Ray(Ray copy, Matrix4d mat) {
+		this(copy);
+		mat.transform(eyePoint);
+		mat.transform(viewDirection);
 	}
 	
 	/** 
@@ -38,7 +38,7 @@ public class Ray {
 		this.eyePoint = new Point3d(eyePoint);
 		this.viewDirection = new Vector3d(viewDirection);
 	}
-
+	
     /**
      * Generate a ray through pixel (i,j).
      * 
@@ -48,7 +48,6 @@ public class Ray {
      * I have no idea what this is, I'm going to leave it out.
      * @param cam The camera.
      * @param ray Contains the generated ray.
-     * No.
      */
 	public Ray(final int i, final int j, final Camera cam) {
 		
@@ -77,18 +76,6 @@ public class Ray {
 		// normalize, it makes testing shapes easier
 		viewDirection.normalize();
 	}
-
-	/**
-	 * Setup the ray.
-	 * @param eyePoint
-	 * @param viewDirection
-	 * 
-	 * Why?
-	 */
-	/*public void set( Point3d eyePoint, Vector3d viewDirection ) {
-		this.eyePoint.set(eyePoint);
-		this.viewDirection.set(viewDirection);
-	}*/
 	
 	/**
 	 * Computes the location of a point along the ray using parameter t.

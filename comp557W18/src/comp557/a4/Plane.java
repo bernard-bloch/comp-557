@@ -27,10 +27,10 @@ public class Plane extends Intersectable {
 
         
     @Override
-    public void intersect( Ray ray, List<IntersectResult> results ) {
+    public IntersectResult intersect( Ray ray ) {
     
         // TODO: Objective 4: intersection of ray with plane
-    	
+    	return null;
     }
     
 }

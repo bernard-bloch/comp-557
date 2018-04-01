@@ -1,5 +1,6 @@
 package comp557.a4;
 
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -40,6 +41,14 @@ public class IntersectResult {
 		material = other.material;
 	}
 	
+	/**
+	 * Transforms this IntersectionResult by mat
+	 */
+	public void transform(Matrix4d mat) {
+		mat.transform(n);
+		mat.transform(p);
+	}
+	
 	public double getT() {
 		return t;
 	}
@@ -60,3 +69,4 @@ public class IntersectResult {
 		return "IR(" + t + ") = " + p + ", " + material;
 	}
 }
+

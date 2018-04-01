@@ -1,7 +1,5 @@
 package comp557.a4;
 
-import java.util.List;
-
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -38,7 +36,7 @@ public class Sphere extends Intersectable {
     }
     
     @Override
-    public void intersect( Ray ray, List<IntersectResult> results ) {
+    public IntersectResult intersect( Ray ray ) {
     
         // TODO: Objective 2: intersection of ray with sphere
     	
@@ -50,7 +48,7 @@ public class Sphere extends Intersectable {
     	double d_dot_p_min_c = ray.getViewDirection().dot(p_min_c);
     	double disc = d_dot_p_min_c * d_dot_p_min_c - p_min_c.lengthSquared() + radius*radius;    	
     	// no intersection
-    	if(disc < 0) return;
+    	if(disc < 0) return null;
     	// calculate parameters, want the first intersection
     	double t = -d_dot_p_min_c - Math.sqrt(disc);
     	Point3d intersect = new Point3d(ray.getViewDirection());
@@ -58,7 +56,7 @@ public class Sphere extends Intersectable {
     	Vector3d normal = new Vector3d(intersect);
     	normal.sub(center);
     	normal.normalize();
-    	results.add(new IntersectResult(normal, intersect, material, t));
+    	return new IntersectResult(normal, intersect, material, t);
     }
     
 	public String toString() {

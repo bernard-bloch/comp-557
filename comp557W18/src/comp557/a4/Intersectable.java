@@ -1,7 +1,5 @@
 package comp557.a4;
 
-import java.util.List;
-
 /**
  * Abstract class for an intersectable surface 
  */
@@ -21,8 +19,8 @@ public abstract class Intersectable {
 	 * Test for intersection between a ray and this surface. This is an abstract
 	 *   method and must be overridden for each surface type.
 	 * @param ray
-	 * @param result
+	 * @return Result or null if it didn't intersect.
 	 */
-    public abstract void intersect(Ray ray, List<IntersectResult> results);
+    public abstract IntersectResult intersect(Ray ray);
     
 }

@@ -22,8 +22,9 @@ public class Box extends Intersectable {
     }	
 
 	@Override
-	public void intersect(Ray ray, List<IntersectResult> results) {
+	public IntersectResult intersect(Ray ray) {
 		// TODO: Objective 6: intersection of Ray with axis aligned box
+		return null;
 	}	
 
 }

@@ -131,7 +131,7 @@ public class Scene {
         
         // Material has no constructor arguments and all public data
         // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply
-        //Material.premultiplyAll();
+        Material.premultiplyAll();
         
         for ( int i = 0; i < h && !render.isDone(); i++ ) { // left to right
             for ( int j = 0; j < w && !render.isDone(); j++ ) { // bottom to top
@@ -141,9 +141,17 @@ public class Scene {
             	//System.out.println("Ray"+i+","+j+" "+ray.eyePoint+" going "+ray.viewDirection+"."); 
 
                 // TODO: Objective 2: test for intersection with scene surfaces
-				List<IntersectResult> irs = new ArrayList<>();
-            	for(Intersectable il : surfaceList) il.intersect(ray, irs);
+            	IntersectResult result = null;
+            	for(Intersectable il : surfaceList) {
+            		IntersectResult r = il.intersect(ray);
+                    if(r == null) continue;
+                    if(result == null || result.getT() > r.getT()) result = r;
+            	}
 				
+            	// TODO: instead of [0..1] make it [0..n] and have reflected/refracted/transparent scenes
+            	List<IntersectResult> irs = new ArrayList<>();
+            	if(result != null) irs.add(result);
+            	
                 // TODO: Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 
             	// Here is an example of how to calculate the pixel value.                
