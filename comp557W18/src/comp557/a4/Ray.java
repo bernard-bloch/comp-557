@@ -81,10 +81,22 @@ public class Ray {
 	 * Computes the location of a point along the ray using parameter t.
 	 * @param t
 	 * @param p
+	 * That's so confusing. What does this do???
 	 */
-	public void getPoint( double t, Point3d p ) {
+	/*public void getPoint( double t, Point3d p ) {
 		p.scale( t, viewDirection );
 		p.add( eyePoint );
+	}*/
+	
+	/**
+	 * Computes the location of a point along the ray using parameter t.
+	 * @param t
+	 * @return The point.
+	 */
+	public Point3d getPoint( double t ) {
+		Point3d p = new Point3d(viewDirection);
+		p.scaleAdd(t, eyePoint);
+		return p;
 	}
 	
 	public Point3d getEyePoint() {
