@@ -8,7 +8,7 @@ import java.util.Map;
 import javax.vecmath.Color3f;
 import javax.vecmath.Color4f;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Vector4f;
+import javax.vecmath.Vector3f;
 
 /**
  * Simple scene loader based on XML file format.
@@ -65,35 +65,51 @@ public class Scene {
         for(IntersectResult ir : irs) {
         	Material m = ir.getMaterial();
         	assert(m != null);
-        	// add contributions from lights. Ignore alpha component. What's an alpha on a light?
-        	Color3f colour3 = new Color3f();
+        	// add contributions from lights.
+        	Color3f diffuse = new Color3f();
+        	Color3f specular = new Color3f();
         	for(Light light : lights) {
+
         		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
         		Vector3d l = new Vector3d(light.from);
         		l.sub(ir.getPoint());
         		l.normalize();
-        		float nl = (float)ir.getNormal().dot(l);
-        		if(nl <= 0.0) continue;
-        		Color3f kd = new Color3f(m.diffuse.x, m.diffuse.y, m.diffuse.z);
+        		Vector3d n = ir.getNormal();
+        		float nl = (float)n.dot(l);
         		Color3f I = new Color3f(light.color.x, light.color.y, light.color.z);
-        		Color3f Ld = new Color3f(kd.x * I.x, kd.y * I.y, kd.z * I.z);
-        		Ld.scale(nl);
-        		// add to colour3
-        		colour3.add(Ld);
-        		if(isOnce) {
-        			System.out.println("Scene " + ir.getNormal() + ": " + light + " to " + ir.getPoint() + " = " + l + " n*l " + nl);
-        			isOnce = false;
+        		if(nl > 0.0f) {
+	        		Color3f kd = new Color3f(m.diffuse.x, m.diffuse.y, m.diffuse.z);
+	        		Color3f Ld = new Color3f(kd.x * I.x, kd.y * I.y, kd.z * I.z);
+	        		Ld.scale(nl /* * light.color.w <- does not illumiate sample scenes*/);
+	        		diffuse.add(Ld);
+	        		if(isOnce) {
+	        			System.out.println("Scene " + ir.getNormal() + ": " + light + " to " + ir.getPoint() + " = " + l + " n*l " + nl);
+	        			isOnce = false;
+	        		}
         		}
+        		
+        		// 07Lighting p8 specular: Ls = ks I max(0, n*h)^p
+            	Vector3d h = new Vector3d();
+            	h.add(n, l);
+    			h.normalize(); // doesn't say anything about error at singular point?
+    			float nh = (float)n.dot(h);
+    			if(nh > 0.0f) {
+            		float p = m.shinyness;
+                	Color4f ks = m.specular;
+	        		Color3f Ls = new Color3f(ks.x * I.x, ks.y * I.y, ks.z * I.z);
+	        		Ls.scale((float)Math.pow(nh, p));
+	        		Ls.scale(nh /* * light.color.w*/);
+	        		specular.add(Ls);
+        		}
+
         	}
-        	// the contribution of the colour and the materials alpha
-        	Color4f colour4 = new Color4f(colour3.x, colour3.y, colour3.z, m.diffuse.w);
-        	//Color4f colour4 = new Color4f();
-        	//colour4.x = (float)(ir.getNormal().x > 0.0 ? ir.getNormal().x : 0.0);
-        	//colour4.y = (float)(ir.getNormal().y > 0.0 ? ir.getNormal().y : 0.0);
-        	//colour4.z = (float)(ir.getNormal().z > 0.0 ? ir.getNormal().z : 0.0);
-        	//colour4.w = 1.0f;
-    		alphaBlend(c, colour4);
-    		//c.add(colour4);
+        	// use a probable heuristic
+        	Vector3f diffuseVec = new Vector3f(diffuse);
+        	Vector3f specularVec = new Vector3f(diffuse);
+        	float alpha = diffuseVec.length() * m.diffuse.w + specularVec.length() * m.specular.w;
+        	Color4f beautiful = new Color4f(diffuse.x + specular.x + ambient.x, diffuse.y + specular.y + ambient.y, diffuse.z + specular.z + ambient.z, alpha);
+        	beautiful.clamp(0.0f, 1.0f);
+    		alphaBlend(c, beautiful);
         	// if the alpha is 1, just stop
         	if(c.w >= 1.0f) break;
         }
