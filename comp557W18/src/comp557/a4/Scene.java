@@ -56,14 +56,9 @@ public class Scene {
     private Color4f colour(List<IntersectResult> irs) {
     	// sort the results based on t
     	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
-    	Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
-    	float whiteAlpha = 0.5f;
     	List<Light> lights = Light.getAllLights();
-    	// start off with a background and alpha is 0
-    	//Color3f c = new Color3f(render.bgcolor);
-    	//double alpha = 0.0;
     	Color4f c = new Color4f();
-    	// each intersection result adds to the alpha until it get's full or the background is partially visible
+    	// each intersection result adds to the alpha until it get's full
         for(IntersectResult ir : irs) {
         	/* diffuse */
         	Material m = ir.getMaterial();
@@ -84,12 +79,11 @@ public class Scene {
         		//alphaBlend(c, Ld);
         		c.add(Ld);
         	}
-        	System.out.println("Scene: intersected " + ir);
-        	if(c.w > 0.999) break;
         	*/
-        	c.add(m.diffuse);
+        	alphaBlend(c, m.diffuse);
+        	if(c.w >= 1.0f) { System.err.println(c.w);break;}
         }
-        // turn on background
+        // turn on background. This will render an all alpha = 1
         alphaBlend(c, render.bgcolor);
         return c;
     }
