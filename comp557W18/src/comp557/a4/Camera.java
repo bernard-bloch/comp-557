@@ -36,7 +36,6 @@ public class Camera {
      * Default constructor
      */
     public Camera() {
-    	// do nothing
         z = new Vector3d(from);
         z.sub(to);
         z.normalize();

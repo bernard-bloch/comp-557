@@ -3,8 +3,6 @@ package comp557.a4;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import javafx.geometry.Point3D;
-
 /**
  * Class for a plane at y=0.
  * 
@@ -36,17 +34,19 @@ public class Plane extends Intersectable {
     	// line: p = tl + l0;
     	// l*n != 0 -> t = ((p0 - l0)*n)/(l*n);
     	// p0 = 0;
-    	/*Vector3d l = ray.getViewDirection();
+    	Vector3d l = ray.getViewDirection();
     	double ln = l.dot(n);
     	if(ln == 0.0) return null;
     	Vector3d l0 = new Vector3d(ray.getEyePoint());
     	double t = l0.dot(n) / ln;
     	if(t <= 0.0) return null;
-    	Point3d intersect = new Point3d(ray);
-    	Material m = material; //@fixme
-    	
-    	return new IntersectResult(normal, intersect, m, t);*/
-    	return null;
+    	Point3d intersect = ray.getPoint(t);
+    	// decide which colour to give the material. Project the ray onto the plane.
+    	Vector3d i = new Vector3d(intersect);
+    	int x = (int)i.dot(new Vector3d(n.y, n.z, n.x));
+    	int y = (int)i.dot(new Vector3d(n.z, n.x, n.y));
+    	Material m = ((x ^ y) & 1) != 0 ? material : material2;
+    	return new IntersectResult(n, intersect, m, t);
     }
     
 }
