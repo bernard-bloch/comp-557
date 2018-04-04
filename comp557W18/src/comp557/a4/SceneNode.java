@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-
 import comp557.a4.IntersectResult;
 import comp557.a4.Intersectable;
 import comp557.a4.Ray;
@@ -27,7 +24,7 @@ import comp557.a4.Ray;
 public class SceneNode extends Intersectable {
 	
 	/** Static map for accessing scene nodes by name, to perform instancing */
-	public static Map<String,SceneNode> nodeMap = new HashMap<String,SceneNode>();
+	static public Map<String,SceneNode> nodeMap = new HashMap<String,SceneNode>();
 	
     public String name;
    

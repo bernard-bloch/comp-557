@@ -1,5 +1,6 @@
 package comp557.a4;
 
+import java.awt.Dimension;
 import java.util.Scanner;
 
 import javax.vecmath.Matrix4d;
@@ -197,18 +198,33 @@ public class Parser {
 	 * Create a camera.
 	 */
 	public static Camera createCamera(Node dataNode) {
-		Camera camera = new Camera();			
-		Node nameAttr = dataNode.getAttributes().getNamedItem("name");
-		if ( nameAttr != null ) {
-			camera.name = nameAttr.getNodeValue();
-		}
-        Node fromAttr = dataNode.getAttributes().getNamedItem("from");
+		/** Camera name */
+	    //String name = "camera";
+
+	    /** The eye position */
+	    Point3d from = new Point3d(0,0,10);
+	    
+	    /** The "look at" position */
+	    Point3d to = new Point3d(0,0,0);
+	    
+	    /** Up direction, default is y up */
+	    Vector3d up = new Vector3d(0,1,0);
+	    
+	    /** Vertical field of view (in degrees), default is 45 degrees */
+	    double fovy = 45.0;
+	    
+	    /** The rendered image size */
+	    Dimension imageSize = new Dimension(640,480);
+
+		//Node nameAttr = dataNode.getAttributes().getNamedItem("name");
+		//if( nameAttr != null ) name = nameAttr.getNodeValue();
+		Node fromAttr = dataNode.getAttributes().getNamedItem("from");
         if ( fromAttr != null ) {
         	Scanner s = new Scanner( fromAttr.getNodeValue());
             double x = s.nextDouble();
             double y = s.nextDouble();
             double z = s.nextDouble();
-            camera.from.set(x,y,z);     
+            from.set(x,y,z);     
             s.close();
         }
         Node toAttr = dataNode.getAttributes().getNamedItem("to");
@@ -217,7 +233,7 @@ public class Parser {
             double x = s.nextDouble();
             double y = s.nextDouble();
             double z = s.nextDouble();
-            camera.to.set(x,y,z);     
+            to.set(x,y,z);     
             s.close();
         }
         Node upAttr = dataNode.getAttributes().getNamedItem("up");
@@ -226,23 +242,23 @@ public class Parser {
             double x = s.nextDouble();
             double y = s.nextDouble();
             double z = s.nextDouble();
-            camera.up.set(x,y,z);
+            up.set(x,y,z);
             s.close();
         }
         Node fovAttr = dataNode.getAttributes().getNamedItem("fovy");
         if ( fovAttr != null ) {
-            camera.fovy = Double.parseDouble( fovAttr.getNodeValue() );       	
+            fovy = Double.parseDouble( fovAttr.getNodeValue() );       	
         }
         Node widthAttr = dataNode.getAttributes().getNamedItem("width");
         if ( widthAttr != null ) {
-            camera.imageSize.width = Integer.parseInt( widthAttr.getNodeValue() );        	
+            imageSize.width = Integer.parseInt( widthAttr.getNodeValue() );        	
         }
         Node heightAttr = dataNode.getAttributes().getNamedItem("height");
         if ( heightAttr != null ) {
-            camera.imageSize.height = Integer.parseInt( heightAttr.getNodeValue() );        	
+            imageSize.height = Integer.parseInt( heightAttr.getNodeValue() );        	
         }
         
-		return camera;
+		return new Camera(from, to, up, fovy, imageSize);
 	}
 	
 	/**

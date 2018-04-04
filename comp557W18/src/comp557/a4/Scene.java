@@ -136,8 +136,8 @@ public class Scene {
     public void render(boolean showPanel) {
  
         Camera cam = render.camera; 
-        int w = cam.imageSize.width;
-        int h = cam.imageSize.height;
+        int w = cam.getImageSize().width;
+        int h = cam.getImageSize().height;
         
         render.init(w, h, showPanel);
         
@@ -145,8 +145,8 @@ public class Scene {
         // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply
         Material.premultiplyAll();
         
-        for ( int y = 0; y < w && !render.isDone(); y++ ) { // bottom to top
-        	for ( int x = 0; x < h && !render.isDone(); x++ ) { // left to right
+        for ( int y = 0; y < h && !render.isDone(); y++ ) { // bottom to top
+        	for ( int x = 0; x < w && !render.isDone(); x++ ) { // left to right
             	
                 // Objective 1: generate a ray (use the generateRay method)
             	Ray ray = new Ray(x, y, cam);

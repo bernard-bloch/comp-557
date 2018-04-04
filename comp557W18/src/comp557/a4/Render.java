@@ -63,10 +63,11 @@ public class Render extends WindowAdapter {
     /**
      * Default constructor. Creates a default camera and black background color.
      * @param dataNode
+     * Where is this called???
      */
     public Render() {
     	this.done = false;
-    	this.camera = new Camera();
+    	this.camera = null;//new Camera();
     	this.image = null;
     	this.output = "render.png";
     	this.bgcolor = new Color3f( 0, 0, 0 );

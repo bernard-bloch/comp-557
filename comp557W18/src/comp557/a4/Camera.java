@@ -12,44 +12,48 @@ import javax.vecmath.Vector3d;
 public class Camera {
 	
 	/** Camera name */
-    public String name = "camera";
-
-    /** The eye position */
-    public Point3d from = new Point3d(0,0,10);
+    //private String name;
+	// never used
     
-    /** The "look at" position */
-    public Point3d to = new Point3d(0,0,0);
-    
-    /** Up direction, default is y up */
-    public Vector3d up = new Vector3d(0,1,0);
-    
-    /** Vertical field of view (in degrees), default is 45 degrees */
-    public double fovy = 45.0;
+    /** FOV multiplier */
+    private double fov;
     
     /** The rendered image size */
-    public Dimension imageSize = new Dimension(640,480);
+    private Dimension imageSize;// = new Dimension(640,480);
 
-    // cache the axis of the camera
+    private Point3d from;
     private Vector3d x, y, z;
 
     /**
-     * Default constructor
+     * Default constructor -- does nothing because someone abused reflection to
+     * load a model and now it's useless.
      */
-    public Camera() {
-        z = new Vector3d(from);
-        z.sub(to);
-        z.normalize();
+    public Camera(Point3d from, Point3d to, Vector3d up, double fovy, Dimension image) {
+    	//this.name = name;
 
-        y = new Vector3d(up);
-        y.normalize();
-
-        x = new Vector3d();
-        x.cross(y,z);
-
+    	// from the from, to, and up, get the axis
+    	this.from = new Point3d(from);
+        this.z = new Vector3d(from);
+        this.z.sub(to);
+        this.z.normalize();
+        this.y = new Vector3d(up);
+        this.y.normalize();
+        this.x = new Vector3d();
+        this.x.cross(this.y,z);
         // orthonormalize
-        y.cross(z,x);
+        this.y.cross(z,this.x);
+		
+        // from the fovy, calcuate the fov multiplier
+        this.fov = -image.getHeight() * 1.0 / Math.tan(fovy * Math.PI / 180.0);
         
+        // x, y -> imageSize
+        this.imageSize = image;
+
         System.out.println("Camera x:"+x+"; y:"+y+"; z:"+z+".");
+    }
+        
+    public Point3d getFrom() {
+    	return from;
     }
     
     public Vector3d getXAxis() {
@@ -63,5 +67,14 @@ public class Camera {
     public Vector3d getZAxis(){
         return z;
     }
+    
+    public double getFOVMultiplier() {
+    	return fov;
+    }
+    
+    public Dimension getImageSize() {
+    	return imageSize;
+    }
+    
 }
 

@@ -40,9 +40,9 @@ public class Sphere extends Intersectable {
     
         // TODO: Objective 2: intersection of ray with sphere
     	
-    	Vector3d look = ray.getViewDirection();
+    	//Vector3d look = ray.getViewDirection();
     	//Point3d eye = ray.getEyePoint();
-    	boolean isP = look.epsilonEquals(new Vector3d(0, 0, -1), 0.001);
+    	//boolean isP = look.epsilonEquals(new Vector3d(0, 0, -1), 0.001);
     	//if(isP) System.err.println("Camera " + eye+"->" + look);
     	
     	//System.out.println(this + "; " + ray);
