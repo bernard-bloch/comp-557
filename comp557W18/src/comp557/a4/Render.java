@@ -40,19 +40,19 @@ public class Render extends WindowAdapter {
 	}
 	
 	/** The render camera */
-    public Camera camera;
+    private Camera camera;
     
     /** Samples per pixel */
-    public int samples;
+    private int samples;
     
     /** The output filename */
-    public String output;
+    private String output;
     
     /** The background color */
-    public Color3f bgcolor;
+    private Color3f bgcolor;
     
     /** Buffered image of the render, updated as it progresses */    
-    public BufferedImage image;
+    private BufferedImage image;
     
     /** Drawing panel */
     private ImagePanel panel;
@@ -60,20 +60,19 @@ public class Render extends WindowAdapter {
     /** Flag to indicate when rendering should stop */
     private boolean done;
     
+    public Color3f getBgcolour() {
+    	return bgcolor;
+    }
+    
+    public Camera getCamera() {
+    	return camera;
+    }
+    
     /**
      * Default constructor. Creates a default camera and black background color.
      * @param dataNode
-     * Where is this called???
+     * Where is this called??? Nowhere.
      */
-    public Render() {
-    	this.done = false;
-    	this.camera = null;//new Camera();
-    	this.image = null;
-    	this.output = "render.png";
-    	this.bgcolor = new Color3f( 0, 0, 0 );
-    	this.panel = null;
-    	this.samples = 1;
-    }
     
     /**
      * Creates a buffered image using ARGB integer ordering for color components.
@@ -83,8 +82,9 @@ public class Render extends WindowAdapter {
      * @param width
      * @param height
      */
-    public void init(int width, int height, boolean showPanel) {
-    	image = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
+    public Render(Camera camera, int samples, String output, Color3f bgcolor, boolean showPanel) {
+    	//image = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
+    	image = new BufferedImage( camera.getImageSize().width, camera.getImageSize().height, BufferedImage.TYPE_INT_ARGB );
     	Graphics2D g2 = (Graphics2D)image.getGraphics();
     	if ( g2 != null ) {
 	    	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -93,7 +93,7 @@ public class Render extends WindowAdapter {
     	}    	
     	if ( showPanel ) {    	
 	    	panel = new ImagePanel(image);
-	    	panel.setPreferredSize( new Dimension(width, height) );	    	
+	    	panel.setPreferredSize( new Dimension(camera.getImageSize().width, camera.getImageSize().height) );	    	
 	    	JFrame frame = new JFrame();
 	    	frame.addWindowListener(this);
 	    	frame.setLayout( new BorderLayout() );
@@ -108,6 +108,10 @@ public class Render extends WindowAdapter {
 		    	g2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
 	    	}
     	}
+    	this.camera = camera;
+    	this.output = output;
+    	this.bgcolor = bgcolor;
+    	this.samples = samples;
     }
     
     public void setPixel(int x, int y, int argb) {

@@ -1,7 +1,5 @@
 package comp557.a4;
 
-import java.util.List;
-
 import javax.vecmath.Point3d;
 
 /**

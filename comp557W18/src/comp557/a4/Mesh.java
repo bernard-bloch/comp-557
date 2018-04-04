@@ -1,7 +1,6 @@
 package comp557.a4;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Mesh extends Intersectable {

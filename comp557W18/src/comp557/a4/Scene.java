@@ -35,7 +35,7 @@ public class Scene {
      * Default constructor.
      */
     public Scene() {
-    	this.render = new Render();
+    	//this.render = new Render();
     }
     
 	// https://en.wikipedia.org/wiki/Alpha_compositing
@@ -126,20 +126,18 @@ public class Scene {
         	if(c.w >= 1.0f) break;
         }
         // turn on background. This will render an all alpha = 1
-        alphaBlend(c, render.bgcolor);
+        alphaBlend(c, render.getBgcolour());
         return c;
     }
     
     /**
      * renders the scene
      */
-    public void render(boolean showPanel) {
+    public void render() {
  
-        Camera cam = render.camera; 
+        Camera cam = render.getCamera(); 
         int w = cam.getImageSize().width;
         int h = cam.getImageSize().height;
-        
-        render.init(w, h, showPanel);
         
         // Material has no constructor arguments and all public data
         // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply

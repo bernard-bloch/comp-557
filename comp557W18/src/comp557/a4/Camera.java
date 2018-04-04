@@ -25,9 +25,8 @@ public class Camera {
     private Vector3d x, y, z;
 
     /**
-     * Default constructor -- does nothing because someone abused reflection to
-     * load a model and now it's useless.
-     */
+     * constructor. for real.
+     *      */
     public Camera(Point3d from, Point3d to, Vector3d up, double fovy, Dimension image) {
     	//this.name = name;
 

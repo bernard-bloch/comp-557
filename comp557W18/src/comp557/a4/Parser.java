@@ -1,14 +1,18 @@
 package comp557.a4;
 
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.util.Scanner;
 
+import javax.vecmath.Color3f;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import comp557.a4.Render.ImagePanel;
 
 /**
  * A factory class to generate raytracer objects from XML definition. 
@@ -196,6 +200,7 @@ public class Parser {
 	
 	/**
 	 * Create a camera.
+	 * Bernard: fixed. It was creating 3 cameras.
 	 */
 	public static Camera createCamera(Node dataNode) {
 		/** Camera name */
@@ -305,12 +310,24 @@ public class Parser {
 
 	/**
 	 * Create a renderer.
+	 * I fixed it.
 	 */
 	public static Render createRender(Node dataNode) {
-		Render render = new Render();
+		/** The render camera */
+	    Camera camera = null;
+	    
+	    /** Samples per pixel */
+	    int samples = 1;
+	    
+	    /** The output filename */
+	    String output = "render.png";
+	    
+	    /** The background color */
+	    Color3f bgcolor = new Color3f();
+	    
 		Node outputAttr = dataNode.getAttributes().getNamedItem("output");
 		if ( outputAttr != null ) {
-			render.output = outputAttr.getNodeValue();
+			output = outputAttr.getNodeValue();
 		}
 		Node bgcolorAttr = dataNode.getAttributes().getNamedItem("bgcolor");
 		if ( bgcolorAttr != null ) {
@@ -318,13 +335,13 @@ public class Parser {
             float r = s.nextFloat();
             float g = s.nextFloat();
             float b = s.nextFloat();
-			render.bgcolor.set(r,g,b);
+			bgcolor.set(r,g,b);
 			s.close();
 		}		
 		Node samplesAttr = dataNode.getAttributes().getNamedItem("samples");
 		if ( samplesAttr != null ) {
         	Scanner s = new Scanner( samplesAttr.getNodeValue());
-            render.samples = s.nextInt(); 
+            samples = s.nextInt(); 
 			s.close();
 		}
     	NodeList nodeList = dataNode.getChildNodes();
@@ -334,10 +351,10 @@ public class Parser {
             if ( n.getNodeType() != Node.ELEMENT_NODE ) continue;
     		String name = n.getNodeName();
 			if ( name.equalsIgnoreCase("camera") ) {
-				render.camera = Parser.createCamera(n);
+				camera = Parser.createCamera(n);
     		}
-    	}	
-		return render;
+    	}
+		return new Render(camera, samples, output, bgcolor, true);
 	}
 	
 	/**
