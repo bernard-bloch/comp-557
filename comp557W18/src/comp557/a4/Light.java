@@ -1,8 +1,5 @@
 package comp557.a4;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.vecmath.Color4f;
 import javax.vecmath.Point3d;
 
@@ -24,19 +21,19 @@ public class Light /*implements Iterable<Light>*/ {
     public String type = "point";
 
     // store all the lights for lighting
-    static private List<Light> allLights = new ArrayList<>();
+    //static private List<Light> allLights = new ArrayList<>();
     
     /**
      * Default constructor 
      */
     public Light() {
     	// do nothing
-    	allLights.add(this);
+    	//allLights.add(this);
     }
     
-    static public List<Light> getAllLights() {
+    /*static public List<Light> getAllLights() {
     	return allLights;
-    }
+    }*/
     
     public String toString() {
     	return name+" at "+from;

@@ -16,6 +16,7 @@ import javax.vecmath.Vector3f;
 
 /**
  * Simple scene loader based on XML file format.
+ * Initialize with Parser.
  */
 public abstract class Scene {
     
@@ -30,13 +31,6 @@ public abstract class Scene {
     
     /** The ambient light colour */
     protected Color3f ambient = new Color3f();
-
-    /** 
-     * Default constructor.
-     */
-    //public Scene() {
-    	//this.render = new Render();
-    //}
     
 	// https://en.wikipedia.org/wiki/Alpha_compositing
     private void alphaBlend(Color4f colour, Color4f add) {
@@ -66,11 +60,12 @@ public abstract class Scene {
     	final boolean isPrint = ran.nextInt(100000) == 0;
     	// sort the results based on t. I go forward and add.
     	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
-    	// get all the lights
-    	List<Light> lights = Light.getAllLights();
+    	// get all the lights -- already done!
+    	//List<Light> lights = Light.getAllLights();
     	// the colour starts off at 0
     	Color4f c = new Color4f();
     	// each intersection result adds to the alpha until it get's full
+    	if(isPrint) System.err.println("IRs total " + irs.size());;
         for(IntersectResult ir : irs) {
         	
     		if(isPrint) System.err.println("for " + ir);
@@ -79,7 +74,7 @@ public abstract class Scene {
         	// add contributions from lights.
         	Color3f diffuse = new Color3f();
         	Color3f specular = new Color3f();
-        	for(Light light : lights) {
+        	for(Light light : lights.values()) {
 
         		if(isPrint) System.err.println("  for " + light);
         		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
@@ -167,13 +162,11 @@ public abstract class Scene {
                 render.setPixel(x, y, colour(irs));
             }
         }
+        lights.clear();
+        System.out.println("should 0 "+lights.size());
         
         // save the final render image
         render.save();
-
-        // ???? what is holding state
-        //surfaceList.clear();
-        //lights.clear();
 
         // wait for render viewer to close
         render.waitDone();
