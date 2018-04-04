@@ -1,12 +1,16 @@
 package comp557.a4;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
 import javax.vecmath.Color3f;
 import javax.vecmath.Color4f;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
@@ -49,12 +53,17 @@ public class Scene {
     	colour.w = 1;
     }    
     
-	static boolean isOnce = true;
+	static private String tup(Tuple3d a) {
+		DecimalFormat df = new DecimalFormat("#.0");
+		return "(" + df.format(a.x) + ", " + df.format(a.y) + ", " + df.format(a.z) + ")";
+	}
+	Random ran = new Random(0);
     /**
      * @param irs Given a list of intersection results.
      * @return The color of the given pixel.
      */
     private Color4f colour(List<IntersectResult> irs) {
+    	final boolean isPrint = ran.nextInt(4000) == 0;
     	// sort the results based on t. I go forward and add.
     	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
     	// get all the lights
@@ -63,6 +72,8 @@ public class Scene {
     	Color4f c = new Color4f();
     	// each intersection result adds to the alpha until it get's full
         for(IntersectResult ir : irs) {
+        	
+    		if(isPrint) System.err.println("for " + ir);
         	Material m = ir.getMaterial();
         	assert(m != null);
         	// add contributions from lights.
@@ -70,6 +81,7 @@ public class Scene {
         	Color3f specular = new Color3f();
         	for(Light light : lights) {
 
+        		if(isPrint) System.err.println("  for " + light);
         		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
         		Vector3d l = new Vector3d(light.from);
         		l.sub(ir.getPoint());
@@ -82,9 +94,9 @@ public class Scene {
 	        		Color3f Ld = new Color3f(kd.x * I.x, kd.y * I.y, kd.z * I.z);
 	        		Ld.scale(nl /* * light.color.w <- does not illumiate sample scenes*/);
 	        		diffuse.add(Ld);
-	        		if(isOnce) {
-	        			System.out.println("Scene " + ir.getNormal() + ": " + light + " to " + ir.getPoint() + " = " + l + " n*l " + nl);
-	        			isOnce = false;
+	        		if(isPrint) {
+	        			DecimalFormat df = new DecimalFormat("#.00");
+            			System.err.println("    l = "+tup(l)+"; n = "+tup(n)+"; l*n = "+df.format(nl));
 	        		}
         		}
         		
@@ -133,30 +145,28 @@ public class Scene {
         // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply
         Material.premultiplyAll();
         
-        for ( int i = 0; i < h && !render.isDone(); i++ ) { // left to right
-            for ( int j = 0; j < w && !render.isDone(); j++ ) { // bottom to top
+        for ( int y = 0; y < w && !render.isDone(); y++ ) { // bottom to top
+        	for ( int x = 0; x < h && !render.isDone(); x++ ) { // left to right
             	
-                // TODO: Objective 1: generate a ray (use the generateRay method)
-            	Ray ray = new Ray(i, j, cam);
-            	//System.out.println("Ray"+i+","+j+" "+ray.eyePoint+" going "+ray.viewDirection+"."); 
+                // Objective 1: generate a ray (use the generateRay method)
+            	Ray ray = new Ray(x, y, cam);
 
-                // TODO: Objective 2: test for intersection with scene surfaces
+                // Objective 2: test for intersection with scene surfaces
             	IntersectResult result = null;
             	for(Intersectable il : surfaceList) {
             		IntersectResult r = il.intersect(ray);
                     if(r == null) continue;
+                    // Gets the closest t and ignore the rest. FIXME: this is inefficient
                     if(result == null || result.getT() > r.getT()) result = r;
             	}
 				
-            	// TODO: instead of [0..1] make it [0..n] and have reflected/refracted/transparent scenes
+            	// FIXME: instead of [0..1] make it [0..n] and have reflected/refracted/transparent scenes
             	List<IntersectResult> irs = new ArrayList<>();
             	if(result != null) irs.add(result);
             	
-                // TODO: Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
-                
-            	// Here is an example of how to calculate the pixel value.                
+                // Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 // update the render image
-                render.setPixel(j, i, colour(irs));
+                render.setPixel(x, y, colour(irs));
             }
         }
         

@@ -1,7 +1,10 @@
 package comp557.a4;
 
+import java.text.DecimalFormat;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -65,8 +68,14 @@ public class IntersectResult {
 		return material;
 	}
 	
+	static private String tup(Tuple3d a) {
+		DecimalFormat df = new DecimalFormat("#.0");
+		return "(" + df.format(a.x) + ", " + df.format(a.y) + ", " + df.format(a.z) + ")";
+	}
+	
 	public String toString() {
-		return "IR(" + t + ") = " + p + ", " + material;
+		DecimalFormat df = new DecimalFormat("#.0");
+		return "IR t=" + df.format(t) + ", p=" + tup(p) + ", n=" + tup(n) + ", m=" + material;
 	}
 }
 

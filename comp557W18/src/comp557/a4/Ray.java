@@ -40,16 +40,13 @@ public class Ray {
 	}
 	
     /**
-     * Generate a ray through pixel (i,j).
+     * Generate a ray through pixel (x,y).
      * 
-     * @param i The pixel row.
-     * @param j The pixel column.
-     * @param offset The offset from the center of the pixel, in the range [-0.5,+0.5] for each coordinate. 
-     * I have no idea what this is, I'm going to leave it out.
+     * @param x Increasing from the left.
+     * @param y Increasing from the top.
      * @param cam The camera.
-     * @param ray Contains the generated ray.
      */
-	public Ray(final int i, final int j, final Camera cam) {
+	public Ray(final int x, final int y, final Camera cam) {
 		
 		// TODO: Objective 1: generate rays given the provided parmeters
 		
@@ -58,22 +55,18 @@ public class Ray {
 		// vector d = viewDirection
 		// scalar d = 1
 
-		// p10
-		double fovMult = Math.tan(cam.fovy * Math.PI / 180.0) / cam.imageSize.height;
-		double u = (0.5 - cam.imageSize.width * 0.5 + i) * fovMult;
-		double v = (0.5 - cam.imageSize.height * 0.5 + j) * fovMult;
-
+		double fov = 1.0 / Math.tan(cam.fovy * Math.PI / 180.0);
 		// p9
 		eyePoint = cam.from; // p = e
 		viewDirection = new Vector3d(cam.getZAxis()); // d =
-		viewDirection.negate(); // -(scalar d = 1)w
+		viewDirection.scale(-cam.imageSize.height * fov);
 		Vector3d uVec = new Vector3d(cam.getXAxis());
-		uVec.scale(u);
+		uVec.scale(-cam.imageSize.width * 0.5 + x + 0.5);
 		viewDirection.add(uVec); // + u
 		Vector3d vVec = new Vector3d(cam.getYAxis());
-		vVec.scale(v);
+		vVec.scale(cam.imageSize.height * 0.5 - y + 0.5);
 		viewDirection.add(vVec); // + v
-		// normalize, it makes testing shapes easier
+		// normalize, it makes it easier
 		viewDirection.normalize();
 	}
 	
