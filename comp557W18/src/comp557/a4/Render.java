@@ -68,6 +68,10 @@ public class Render extends WindowAdapter {
     	return camera;
     }
     
+    public int GetSamples() {
+    	return samples;
+    }
+    
     /**
      * Default constructor. Creates a default camera and black background color.
      * @param dataNode

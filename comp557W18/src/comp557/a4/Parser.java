@@ -1,7 +1,6 @@
 package comp557.a4;
 
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.util.Scanner;
 
 import javax.vecmath.Color3f;
@@ -12,25 +11,22 @@ import javax.vecmath.Vector3d;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import comp557.a4.Render.ImagePanel;
-
 /**
  * A factory class to generate raytracer objects from XML definition. 
  */
-public class Parser {
+public class Parser extends Scene {
 
 	/**
 	 * Create a scene.
 	 */
-	public static Scene createScene(Node dataNode) {
-		Scene scene = new Scene();
+	public Parser(Node dataNode) {
 		Node ambientAttr = dataNode.getAttributes().getNamedItem("ambient");
         if( ambientAttr != null ) {
         	Scanner s = new Scanner( ambientAttr.getNodeValue());
             float x = s.nextFloat();
             float y = s.nextFloat();
             float z = s.nextFloat();
-            scene.ambient.set(x, y, z);   
+            this.ambient.set(x, y, z);   
             s.close();
         }
         NodeList nodeList = dataNode.getChildNodes();
@@ -44,26 +40,25 @@ public class Parser {
                 Material.materialMap.put( material.name, material );
             } else if ( nodeName.equalsIgnoreCase( "light" ) ) {                
                 Light light = Parser.createLight(n);
-                scene.lights.put( light.name, light);
+                this.lights.put( light.name, light);
             } else if ( nodeName.equalsIgnoreCase( "render" ) ) {                
-                scene.render = Parser.createRender(n);
+                this.render = Parser.createRender(n);
             } else if ( nodeName.equalsIgnoreCase( "node" ) ) {
-            	scene.surfaceList.add( Parser.createSceneNode(n) );
+            	this.surfaceList.add( Parser.createSceneNode(n) );
             } else if ( nodeName.equalsIgnoreCase( "plane" ) ) {
         		Plane plane = Parser.createPlane(n);
-        		scene.surfaceList.add( plane );
+        		this.surfaceList.add( plane );
             } else if ( nodeName.equalsIgnoreCase( "box" ) ) {
         		Box box = Parser.createBox(n);
-        		scene.surfaceList.add( box );
+        		this.surfaceList.add( box );
             } else if ( nodeName.equalsIgnoreCase( "sphere" ) ) {
         		Sphere sphere = Parser.createSphere(n);
-        		scene.surfaceList.add( sphere );
+        		this.surfaceList.add( sphere );
             } else if ( nodeName.equalsIgnoreCase( "mesh" ) ) {
             	Mesh mesh = Parser.createMesh(n);
-            	scene.surfaceList.add( mesh );
+            	this.surfaceList.add( mesh );
             }
         }
-        return scene;
 	}
 	
 	/**

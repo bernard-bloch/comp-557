@@ -15,7 +15,7 @@ public class Plane extends Intersectable {
 	Material material2;
 	
 	/** The plane normal is the y direction */
-	public static final Vector3d n = new Vector3d( 0, 1, 0 );
+	private static final Vector3d n = new Vector3d( 0, 1, 0 );
     
     /**
      * Default constructor
@@ -34,13 +34,14 @@ public class Plane extends Intersectable {
     	// line: p = tl + l0;
     	// l*n != 0 -> t = ((p0 - l0)*n)/(l*n);
     	// p0 = 0;
+    	Vector3d p0 = new Vector3d(0,0,0);
     	Vector3d l = ray.getViewDirection();
     	double ln = l.dot(n);
     	if(ln == 0.0) return null; // perpendicular
     	Vector3d l0 = new Vector3d(ray.getEyePoint());
-    	double t = l0.dot(n) / ln;
-    	if(t >= 0.0) return null;
-    	//System.err.println(ray + "Plane" + t);
+    	p0.sub(l0);
+    	double t = p0.dot(n) / ln;
+    	if(t <= 0.0) return null;
     	Point3d intersect = ray.getPoint(t);
     	// decide which colour to give the material. Project the ray onto the plane.
     	Vector3d i = new Vector3d(intersect);

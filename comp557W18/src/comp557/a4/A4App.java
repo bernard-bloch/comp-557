@@ -101,7 +101,7 @@ public class A4App extends JFrame implements Runnable {
 			
 			long pstart = System.nanoTime();
 
-			Scene scene = Parser.createScene( document.getDocumentElement() );
+			Scene scene = new Parser( document.getDocumentElement() );
 			
 			long rstart = System.nanoTime();
 			

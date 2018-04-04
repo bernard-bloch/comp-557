@@ -17,26 +17,26 @@ import javax.vecmath.Vector3f;
 /**
  * Simple scene loader based on XML file format.
  */
-public class Scene {
+public abstract class Scene {
     
     /** List of surfaces in the scene */
-    public List<Intersectable> surfaceList = new ArrayList<Intersectable>();
+    protected List<Intersectable> surfaceList = new ArrayList<Intersectable>();
 	
 	/** All scene lights */
-	public Map<String,Light> lights = new HashMap<String,Light>();
+	protected Map<String,Light> lights = new HashMap<String,Light>();
 
     /** Contains information about how to render the scene */
-    public Render render;
+    protected Render render;
     
     /** The ambient light colour */
-    public Color3f ambient = new Color3f();
+    protected Color3f ambient = new Color3f();
 
     /** 
      * Default constructor.
      */
-    public Scene() {
+    //public Scene() {
     	//this.render = new Render();
-    }
+    //}
     
 	// https://en.wikipedia.org/wiki/Alpha_compositing
     private void alphaBlend(Color4f colour, Color4f add) {
@@ -63,7 +63,7 @@ public class Scene {
      * @return The color of the given pixel.
      */
     private Color4f colour(List<IntersectResult> irs) {
-    	final boolean isPrint = ran.nextInt(4000) == 0;
+    	final boolean isPrint = ran.nextInt(100000) == 0;
     	// sort the results based on t. I go forward and add.
     	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
     	// get all the lights
@@ -170,7 +170,11 @@ public class Scene {
         
         // save the final render image
         render.save();
-        
+
+        // ???? what is holding state
+        //surfaceList.clear();
+        //lights.clear();
+
         // wait for render viewer to close
         render.waitDone();
         

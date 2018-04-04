@@ -38,21 +38,13 @@ public class Sphere extends Intersectable {
     @Override
     public IntersectResult intersect( Ray ray ) {
     
-        // TODO: Objective 2: intersection of ray with sphere
-    	
-    	//Vector3d look = ray.getViewDirection();
-    	//Point3d eye = ray.getEyePoint();
-    	//boolean isP = look.epsilonEquals(new Vector3d(0, 0, -1), 0.001);
-    	//if(isP) System.err.println("Camera " + eye+"->" + look);
-    	
-    	//System.out.println(this + "; " + ray);
+        // Objective 2: intersection of ray with sphere
+    	    	
     	// ray: x = p + td
     	// circle: |x - c|^2 = r^2
     	Vector3d p_min_c = new Vector3d(ray.getEyePoint());
     	p_min_c.sub(center);
-    	//if(isP) System.err.println("(p-c) " + p_min_c);
     	double d_dot_p_min_c = ray.getViewDirection().dot(p_min_c);
-    	//if(isP) System.err.println("d*(p-c) " + d_dot_p_min_c);
     	double disc = d_dot_p_min_c * d_dot_p_min_c - p_min_c.lengthSquared() + radius*radius;    	
     	// no intersection
     	if(disc < 0) return null;
@@ -62,7 +54,6 @@ public class Sphere extends Intersectable {
     	Vector3d normal = new Vector3d(intersect);
     	normal.sub(center);
     	normal.normalize();
-    	//if(isP) System.err.println("t " + t + "; int " + intersect + "; n " + normal);    	
     	return new IntersectResult(normal, intersect, material, t);
     }
     

@@ -1,8 +1,10 @@
 package comp557.a4;
 
 import java.awt.Dimension;
+import java.text.DecimalFormat;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -48,7 +50,7 @@ public class Camera {
         // x, y -> imageSize
         this.imageSize = image;
 
-        System.out.println("Camera x:"+x+"; y:"+y+"; z:"+z+".");
+        System.out.println("Camera: "+this);
     }
         
     public Point3d getFrom() {
@@ -73,6 +75,15 @@ public class Camera {
     
     public Dimension getImageSize() {
     	return imageSize;
+    }
+    
+	static private String tup(Tuple3d a) {
+		DecimalFormat df = new DecimalFormat("#.000");
+		return "(" + df.format(a.x) + "," + df.format(a.y) + "," + df.format(a.z) + ")";
+	}
+
+    public String toString() {
+    	return "Cam["+tup(x)+";"+tup(y)+";"+tup(z)+"]";
     }
     
 }

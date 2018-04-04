@@ -36,11 +36,13 @@ public class Ray {
 	 * Creates a new ray with the given eye point and view direction 
 	 * @param eyePoint
 	 * @param viewDirection
+	 * Unused.
 	 */
-	public Ray( Point3d eyePoint, Vector3d viewDirection ) {
+	/*public Ray( Point3d eyePoint, Vector3d viewDirection ) {
 		this.eyePoint = new Point3d(eyePoint);
 		this.viewDirection = new Vector3d(viewDirection);
-	}
+		this.viewDirection.normalize();
+	}*/
 	
     /**
      * Generate a ray through pixel (x,y).
@@ -51,7 +53,7 @@ public class Ray {
      */
 	public Ray(final int x, final int y, final Camera cam) {
 		
-		// TODO: Objective 1: generate rays given the provided parmeters
+		// Objective 1: generate rays given the provided parmeters
 		
 		// Raytracing p. 8
 		// vector e = eyePoint
