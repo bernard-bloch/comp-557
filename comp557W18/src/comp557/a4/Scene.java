@@ -10,6 +10,7 @@ import java.util.Random;
 
 import javax.vecmath.Color3f;
 import javax.vecmath.Color4f;
+import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
@@ -49,7 +50,7 @@ public abstract class Scene {
     
 	static DecimalFormat df = new DecimalFormat("#.00");
 	static private String tup(Tuple3d a) {
-		return "(" + df.format(a.x) + ", " + df.format(a.y) + ", " + df.format(a.z) + ")";
+		return "(" + df.format(a.x) + "," + df.format(a.y) + "," + df.format(a.z) + ")";
 	}
     static private String tup(Color3f a) {
     	return tup(new Vector3d(a));
@@ -59,8 +60,8 @@ public abstract class Scene {
      * @param irs Given a list of intersection results.
      * @return The color of the given pixel.
      */
-    private Color4f colour(List<IntersectResult> irs) {
-    	final boolean isPrint = ran.nextInt(100000) == 0;
+    private Color4f colour(List<IntersectResult> irs, Camera cam) {
+    	final boolean isPrint = ran.nextInt(10000) == 0;
     	// sort the results based on t. I go forward and add.
     	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
     	// get all the lights -- already done!
@@ -75,16 +76,18 @@ public abstract class Scene {
         	Material m = ir.getMaterial();
         	Color4f kd = m.getDiffuse();
         	Color4f ks = m.getSpecular();
+    		Point3d p0 = ir.getPoint();
         	// add contributions from lights.
-        	Color3f diffuse = new Color3f();
-        	Color3f specular = new Color3f();
+        	Vector3f diffuse = new Vector3f();
+        	Vector3f specular = new Vector3f();
         	for(Light light : lights.values()) {
 
-        		if(isPrint) System.err.println("  for " + light);
-        		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
+        		if(isPrint) System.err.println("  for " + light);		
         		Vector3d l = new Vector3d(light.from);
-        		l.sub(ir.getPoint());
+        		l.sub(p0);
         		l.normalize();
+        		
+        		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
         		Vector3d n = ir.getNormal();
         		float nl = (float)n.dot(l);
         		Color3f I = new Color3f(light.color.x, light.color.y, light.color.z);
@@ -98,36 +101,38 @@ public abstract class Scene {
         		}
         		
         		// 07Lighting p8 specular: Ls = ks I max(0, n*h)^p
-            	Vector3d h = new Vector3d();
-            	h.add(n, l);
-    			h.normalize(); // doesn't say anything about error at singular point?
+            	Vector3d h = new Vector3d(cam.getFrom());
+            	h.sub(p0);
+            	h.normalize();
+            	h.add(l);
+    			h.normalize();
     			float nh = (float)n.dot(h);
     			if(nh > 0.0f) {
             		float p = m.getShinyness();
 	        		Color3f Ls = new Color3f(ks.x * I.x, ks.y * I.y, ks.z * I.z);
+            		if(isPrint)
+            			System.err.println("    Ls(inte)="+Ls);
 	        		Ls.scale((float)Math.pow(nh, p));
-	        		Ls.scale(nh * light.color.w);
+	        		Ls.scale(nh /* light.color.w <- breaks? */);
 	        		specular.add(Ls);
             		if(isPrint)
-            			System.err.println("    p = "+p+" spec n*h = "+df.format(nl)+" Ls = "+tup(Ls));
+            			System.err.println("    h="+tup(h)+" p="+p+" spec n*h = "+df.format(nl)+" Ls = "+tup(Ls));
         		}
 
         	}
-        	// use a probable heuristic
-        	Vector3f diffuseVec = new Vector3f(diffuse); // FIXME
-        	Vector3f specularVec = new Vector3f(specular);
-        	float alpha = diffuseVec.length() * kd.w + specularVec.length() * ks.w;
+        	// use a probable heuristic. diffuse.length() * <- no, the coefficient is always 1 since with shadows the shapes do not become transparent
+        	float alpha = kd.w + specular.length() * ks.w;
     		if(isPrint)
     			System.err.println("    alpha = "+df.format(alpha));
-        	Color4f beautiful = new Color4f(diffuseVec.x + specularVec.x + ambient.x, diffuseVec.y + specularVec.y + ambient.y, diffuseVec.z + specularVec.z + ambient.z, alpha);
+    		//diffuse.clamp(0,0); // FIXME
+        	Color4f beautiful = new Color4f(diffuse.x + specular.x + ambient.x, diffuse.y + specular.y + ambient.y, diffuse.z + specular.z + ambient.z, alpha);
         	beautiful.clamp(0.0f, 1.0f);
-        	beautiful.w = 1.0f; /* @fixme All the test scenes do not set alpha. */
     		alphaBlend(c, beautiful);
         	// if the alpha is 1, just stop
         	if(c.w >= 1.0f) break;
         }
         // turn on background. This will render an all alpha = 1
-        alphaBlend(c, render.getBgcolour());
+        //alphaBlend(c, render.getBgcolour());
         return c;
     }
     
@@ -165,7 +170,7 @@ public abstract class Scene {
             	
                 // Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 // update the render image
-                render.setPixel(x, y, colour(irs));
+                render.setPixel(x, y, colour(irs, cam));
             }
         }
         lights.clear();

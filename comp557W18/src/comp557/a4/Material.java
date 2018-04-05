@@ -27,8 +27,9 @@ public class Material {
     private float shinyness;// = 64;
  
 	public Material(String name, Color4f diffuse, Color4f specular, float shinyness) {
-		premultiply(diffuse);
-		premultiply(specular);
+		// FIXME: premultiply
+		//premultiply(diffuse);
+		//premultiply(specular);
 		this.name = name;
 		this.diffuse = diffuse;
 		this.specular = specular;
@@ -36,7 +37,7 @@ public class Material {
 	}
     
     // https://en.wikipedia.org/wiki/Alpha_compositing
-    private static void premultiply(Color4f c) {
+    /*private static void premultiply(Color4f c) {
 		if(c.w < 0.001) {
 			c.set(0.0f, 0.0f, 0.0f, 0.0f);
 			return;
@@ -44,7 +45,7 @@ public class Material {
 		c.x /= c.w;
 		c.y /= c.w;
 		c.z /= c.w;
-    }
+    }*/
 
     public String toString() {
     	return name;
