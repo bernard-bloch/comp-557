@@ -45,7 +45,7 @@ public class IntersectResult {
 		mat.transform(n);
 		mat.transform(p);
 	}
-	
+		
 	public double getT() {
 		return t;
 	}

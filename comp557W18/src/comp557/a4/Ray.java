@@ -38,11 +38,11 @@ public class Ray {
 	 * @param viewDirection
 	 * Unused.
 	 */
-	/*public Ray( Point3d eyePoint, Vector3d viewDirection ) {
+	public Ray( Point3d eyePoint, Vector3d viewDirection ) {
 		this.eyePoint = new Point3d(eyePoint);
 		this.viewDirection = new Vector3d(viewDirection);
 		this.viewDirection.normalize();
-	}*/
+	}
 	
     /**
      * Generate a ray through pixel (x,y).

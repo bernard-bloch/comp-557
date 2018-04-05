@@ -88,6 +88,9 @@ public abstract class Scene {
         		l.sub(p0);
         		l.normalize();
         		
+        		// if it's in shadow, the lighting doesn't affect it
+        		if(inShadow(ir, light)) continue;
+        		
         		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
         		Vector3d n = ir.getNormal();
         		float nl = (float)n.dot(l);
@@ -146,10 +149,6 @@ public abstract class Scene {
         int w = cam.getImageSize().width;
         int h = cam.getImageSize().height;
         
-        // Material has no constructor arguments and all public data
-        // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply
-        //Material.premultiplyAll();
-        
         for ( int y = 0; y < h && !render.isDone(); y++ ) { // bottom to top
         	for ( int x = 0; x < w && !render.isDone(); x++ ) { // left to right
             	
@@ -167,7 +166,6 @@ public abstract class Scene {
             }
         }
         lights.clear();
-        System.out.println("should 0 "+lights.size());
         
         // save the final render image
         render.save();
@@ -187,7 +185,7 @@ public abstract class Scene {
     	}
     	return result;
 	}
-    
+
 	// Objective 1: generate rays given the provided parmeters
 	// I moved this to constructor in Ray.java.
 
@@ -202,11 +200,23 @@ public abstract class Scene {
 	 * 
 	 * @return True if a point is in shadow, false otherwise. 
 	 */
-	public static boolean inShadow(final IntersectResult result, final Light light, final SceneNode root, IntersectResult shadowResult, Ray shadowRay) {
+	private boolean inShadow(IntersectResult ir, final Light light) {
 		
-		// TODO: Objective 5: check for shdows and use it in your lighting computation
+		// Objective 5: check for shdows and use it in your lighting computation
+		// TODO: boolean is not a good thing
 		
+		Vector3d toLight = new Vector3d(light.from);
+		toLight.sub(ir.getPoint());
+		Point3d pEpsilon = new Point3d(ir.getNormal());
+		pEpsilon.scale(0.1);
+		pEpsilon.add(ir.getPoint());
+		Ray ray = new Ray(pEpsilon, toLight);
+    	for(Intersectable il : surfaceList) {
+    		IntersectResult irLight = il.intersect(ray);
+    		if(irLight != null && irLight.getT() < 1.0) return true;
+    	}
 		return false;
-	}    
+	}
+
 }
 
