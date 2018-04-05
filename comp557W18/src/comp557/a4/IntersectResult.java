@@ -12,38 +12,32 @@ import javax.vecmath.Vector3d;
  */
 public class IntersectResult {
 	
+	// the shape
+	private Intersectable shape;
+
+	/** Parameter on the ray giving the position of the intersection */
+	private double t;// = Double.POSITIVE_INFINITY; 
+
+	/** Intersection position */
+	private Point3d p;// = new Point3d();
+
 	/** The normal at the intersection */ 
 	private Vector3d n;// = new Vector3d();
 	
-	/** Intersection position */
-	private Point3d p;// = new Point3d();
-	
 	/** The material of the intersection */
 	private Material material;// = null;
-		
-	/** Parameter on the ray giving the position of the intersection */
-	private double t;// = Double.POSITIVE_INFINITY; 
-	
+			
 	/**
 	 * Default constructor.
 	 */
-	IntersectResult(Vector3d n, Point3d p, Material m, double t) {
-		this.n = n;
-		this.p = p;
-		this.material = m;
+	IntersectResult(Intersectable shape, double t, Point3d p, Vector3d n, Material m) {
+		this.shape = shape;
 		this.t = t;
+		this.p = p;
+		this.n = n;
+		this.material = m;
 	}
-	
-	/**
-	 * Copy constructor.
-	 */
-	IntersectResult( IntersectResult other ) {
-		n.set( other.n );
-		p.set( other.p );
-		t = other.t;
-		material = other.material;
-	}
-	
+		
 	/**
 	 * Transforms this IntersectionResult by mat
 	 */
@@ -64,6 +58,10 @@ public class IntersectResult {
 		return p;
 	}
 	
+	public Intersectable getShape() {
+		return shape;
+	}
+	
 	public Material getMaterial() {
 		return material;
 	}
@@ -75,7 +73,7 @@ public class IntersectResult {
 	
 	public String toString() {
 		DecimalFormat df = new DecimalFormat("#.0");
-		return "IR t=" + df.format(t) + ", p=" + tup(p) + ", n=" + tup(n) + ", m=" + material;
+		return "IR t=" + df.format(t) + ", p=" + tup(p) + ", n=" + tup(n) + ", m=" + shape.getMaterial();
 	}
 }
 

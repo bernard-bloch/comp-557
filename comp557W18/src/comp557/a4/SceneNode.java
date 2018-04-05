@@ -38,14 +38,12 @@ public class SceneNode extends Intersectable {
     /** Child nodes */
     public List<Intersectable> children;
     
-    static private Material nothing = new Material("nothing", new Color4f(0,0,0,0), new Color4f(0,0,0,0), 0);
-    
     /**
      * Default constructor.
      * Note that all nodes must have a unique name, so that they can used as an instance later on.
      */
     public SceneNode() {
-    	super(nothing);
+    	super(null);
     	this.name = "";
     	this.M = new Matrix4d();
     	this.Minv = new Matrix4d();

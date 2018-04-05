@@ -46,7 +46,7 @@ public class Sphere extends Intersectable {
     	Vector3d normal = new Vector3d(intersect);
     	normal.sub(center);
     	normal.normalize();
-    	return new IntersectResult(normal, intersect, material, t);
+    	return new IntersectResult(this, t, intersect, normal, material);
     }
     
 	public String toString() {

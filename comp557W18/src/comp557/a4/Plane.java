@@ -54,7 +54,7 @@ public class Plane extends Intersectable {
 	    	int y = (int)Math.floor(i.dot(new Vector3d(n.z, n.x, n.y)));
 	    	if(((x ^ y) & 1) != 0) m = material2;
     	}
-    	return new IntersectResult(n, intersect, m, t);
+    	return new IntersectResult(this, t, intersect, n, m);
     }
     
 }

@@ -31,6 +31,7 @@ public abstract class Scene {
     protected Render render;
     
     /** The ambient light colour */
+    //TODO: why doesn't it be Color4f?
     protected Color3f ambient = new Color3f();
     
 	// https://en.wikipedia.org/wiki/Alpha_compositing
@@ -41,12 +42,12 @@ public abstract class Scene {
     	colour.w = colour.w + add.w * (1.0f - colour.w);
     }
     
-    private void alphaBlend(Color4f colour, Color3f add) {
+    /*private void alphaBlend(Color4f colour, Color3f add) {
     	colour.x = colour.x + add.x * (1.0f - colour.w);
     	colour.y = colour.y + add.y * (1.0f - colour.w);
     	colour.z = colour.z + add.z * (1.0f - colour.w);
     	colour.w = 1;
-    }    
+    } */   
     
 	static DecimalFormat df = new DecimalFormat("#.00");
 	static private String tup(Tuple3d a) {
@@ -124,7 +125,6 @@ public abstract class Scene {
         	float alpha = kd.w + specular.length() * ks.w;
     		if(isPrint)
     			System.err.println("    alpha = "+df.format(alpha));
-    		//diffuse.clamp(0,0); // FIXME
         	Color4f beautiful = new Color4f(diffuse.x + specular.x + ambient.x, diffuse.y + specular.y + ambient.y, diffuse.z + specular.z + ambient.z, alpha);
         	beautiful.clamp(0.0f, 1.0f);
     		alphaBlend(c, beautiful);
@@ -153,16 +153,8 @@ public abstract class Scene {
         	for ( int x = 0; x < w && !render.isDone(); x++ ) { // left to right
             	
                 // Objective 1: generate a ray (use the generateRay method)
-            	Ray ray = new Ray(x, y, cam);
-
                 // Objective 2: test for intersection with scene surfaces
-            	IntersectResult result = null;
-            	for(Intersectable il : surfaceList) {
-            		IntersectResult r = il.intersect(ray);
-                    if(r == null) continue;
-                    // Gets the closest t and ignore the rest. FIXME: this is inefficient
-                    if(result == null || result.getT() > r.getT()) result = r;
-            	}
+            	IntersectResult result = getClosestResult(new Ray(x, y, cam));
 				
             	// FIXME: instead of [0..1] make it [0..n] and have reflected/refracted/transparent scenes
             	List<IntersectResult> irs = new ArrayList<>();
@@ -183,6 +175,17 @@ public abstract class Scene {
         render.waitDone();
         
     }
+    
+	private IntersectResult getClosestResult(Ray ray) {
+    	IntersectResult result = null;
+    	for(Intersectable il : surfaceList) {
+    		IntersectResult r = il.intersect(ray);
+            if(r == null) continue;
+            // Gets the closest t and ignore the rest.
+            if(result == null || result.getT() > r.getT()) result = r;
+    	}
+    	return result;
+	}
     
 	// Objective 1: generate rays given the provided parmeters
 	// I moved this to constructor in Ray.java.
