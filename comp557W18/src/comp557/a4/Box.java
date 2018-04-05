@@ -7,16 +7,16 @@ import javax.vecmath.Point3d;
  */
 public class Box extends Intersectable {
 
-	public Point3d max;
-	public Point3d min;
+	private Point3d min;
+	private Point3d max;
 	
     /**
      * Default constructor. Creates a 2x2x2 box centered at (0,0,0)
      */
-    public Box() {
-    	super();
-    	this.max = new Point3d( 1, 1, 1 );
-    	this.min = new Point3d( -1, -1, -1 );
+    public Box(Point3d min, Point3d max, Material m) {
+    	super(m);
+    	this.min = min;
+    	this.max = max;
     }	
 
 	@Override

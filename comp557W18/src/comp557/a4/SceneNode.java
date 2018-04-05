@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.vecmath.Color4f;
 import javax.vecmath.Matrix4d;
 import comp557.a4.IntersectResult;
 import comp557.a4.Intersectable;
@@ -19,7 +20,7 @@ import comp557.a4.Ray;
  * 
  * Note that if the material (inherited from Intersectable) for a scene 
  * node is non-null, it should override the material of any child.
- * 
+ * No /\ That is a terrible idea. material is always non-null.
  */
 public class SceneNode extends Intersectable {
 	
@@ -37,12 +38,14 @@ public class SceneNode extends Intersectable {
     /** Child nodes */
     public List<Intersectable> children;
     
+    static private Material nothing = new Material("nothing", new Color4f(0,0,0,0), new Color4f(0,0,0,0), 0);
+    
     /**
      * Default constructor.
      * Note that all nodes must have a unique name, so that they can used as an instance later on.
      */
     public SceneNode() {
-    	super();
+    	super(nothing);
     	this.name = "";
     	this.M = new Matrix4d();
     	this.Minv = new Matrix4d();

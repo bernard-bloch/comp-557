@@ -6,19 +6,22 @@ import java.util.Map;
 public class Mesh extends Intersectable {
 	
 	/** Static map storing all meshes by name */
-	public static Map<String,Mesh> meshMap = new HashMap<String,Mesh>();
+	private static Map<String,Mesh> meshMap = new HashMap<String,Mesh>();
 	
 	/**  Name for this mesh, to allow re-use of a polygon soup across Mesh objects */
-	public String name = "";
+	private String name;// = "";
 	
 	/**
 	 * The polygon soup.
 	 */
-	public PolygonSoup soup;
+	private PolygonSoup soup;
 
-	public Mesh() {
-		super();
-		this.soup = null;
+	public Mesh(String name, PolygonSoup soup, Material m) {
+		super(m);
+		this.name = name;
+		this.soup = soup;
+    	if ( !meshMap.containsKey(name) )
+    		meshMap.put(name, this);
 	}			
 		
 	@Override
@@ -26,6 +29,18 @@ public class Mesh extends Intersectable {
 		
 		// TODO: Objective 7: ray triangle intersection for meshes
 		return null;
+	}
+
+	public static Map<String, Mesh> getMeshMap() {
+		return meshMap;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public PolygonSoup getSoup() {
+		return soup;
 	}
 
 }

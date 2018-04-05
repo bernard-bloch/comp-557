@@ -12,16 +12,21 @@ import javax.vecmath.Vector3d;
 public class Plane extends Intersectable {
     
 	/** The second material, if non-null is used to produce a checker board pattern. */
-	Material material2;
+	private Material material2;
 	
-	/** The plane normal is the y direction */
-	private static final Vector3d n = new Vector3d( 0, 1, 0 );
+	/** The plane. */
+	private Vector3d n;// = new Vector3d( 0, 1, 0 );
+	private Vector3d p0;
     
     /**
-     * Default constructor
+     * @param material2 Can be null.
      */
-    public Plane() {
-    	super();
+    public Plane(Point3d p0, Vector3d n, Material material, Material material2) {
+    	super(material);
+    	n.normalize();
+    	this.p0 = new Vector3d(p0);
+    	this.n = n;
+    	this.material2 = material2;
     }
 
         
@@ -33,21 +38,22 @@ public class Plane extends Intersectable {
     	// plane: (p - p0)*n = 0;
     	// line: p = tl + l0;
     	// l*n != 0 -> t = ((p0 - l0)*n)/(l*n);
-    	// p0 = 0;
-    	Vector3d p0 = new Vector3d(0,0,0);
     	Vector3d l = ray.getViewDirection();
     	double ln = l.dot(n);
     	if(ln == 0.0) return null; // perpendicular
-    	Vector3d l0 = new Vector3d(ray.getEyePoint());
-    	p0.sub(l0);
-    	double t = p0.dot(n) / ln;
+    	Vector3d p0_sub_l0 = new Vector3d(p0);
+    	p0_sub_l0.sub(ray.getEyePoint());
+    	double t = p0_sub_l0.dot(n) / ln;
     	if(t <= 0.0) return null;
     	Point3d intersect = ray.getPoint(t);
     	// decide which colour to give the material. Project the ray onto the plane.
-    	Vector3d i = new Vector3d(intersect);
-    	int x = (int)Math.floor(i.dot(new Vector3d(n.y, n.z, n.x)));
-    	int y = (int)Math.floor(i.dot(new Vector3d(n.z, n.x, n.y)));
-    	Material m = ((x ^ y) & 1) != 0 ? material : material2;
+    	Material m = material;
+    	if(material2 != null) {
+	    	Vector3d i = new Vector3d(intersect);
+	    	int x = (int)Math.floor(i.dot(new Vector3d(n.y, n.z, n.x)));
+	    	int y = (int)Math.floor(i.dot(new Vector3d(n.z, n.x, n.y)));
+	    	if(((x ^ y) & 1) != 0) m = material2;
+    	}
     	return new IntersectResult(n, intersect, m, t);
     }
     

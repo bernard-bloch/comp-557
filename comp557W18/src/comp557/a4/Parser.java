@@ -57,7 +57,7 @@ public class Parser extends Scene {
         		this.surfaceList.add( sphere );
             } else if ( nodeName.equalsIgnoreCase( "mesh" ) ) {
             	Mesh mesh = Parser.createMesh(n);
-            	this.surfaceList.add( mesh );
+            	if(mesh != null) this.surfaceList.add( mesh );
             }
         }
 	}
@@ -364,49 +364,56 @@ public class Parser extends Scene {
 	}
 	
 	/**
-	 * Create a plane.
+	 * Create a plane. material2 can be null.
 	 */
 	public static Plane createPlane( Node dataNode ) {
-		Plane plane = new Plane();	
-		plane.material = parseMaterial(dataNode, "material");	
-		plane.material2 = parseMaterial(dataNode, "material2");
-		return plane;
+		Material material = parseMaterial(dataNode, "material");	
+		Material material2 = parseMaterial(dataNode, "material2");
+		return new Plane(new Point3d(0,0,0), new Vector3d(0,1,0), material, material2);	
+		// TODO: expand this easily
 	}
 	
 	/**
 	 * Create a sphere object.
 	 */
 	public static Sphere createSphere(Node dataNode) {
-		Sphere sphere = new Sphere();
+		/** Radius of the sphere. */
+		double radius = 1;
+	    
+		/** Location of the sphere center. */
+		Point3d center = new Point3d( 0, 0, 0 );
+		
 		Node centerAttr = dataNode.getAttributes().getNamedItem("center");
 		if ( centerAttr != null ) {
             Scanner s = new Scanner( centerAttr.getNodeValue() );
             double x = s.nextDouble();
             double y = s.nextDouble();
             double z = s.nextDouble();
-            sphere.center = new Point3d(x, y, z);
+            center = new Point3d(x, y, z);
             s.close();
 		}
 		Node radiusAttr = dataNode.getAttributes().getNamedItem("radius");
 		if ( radiusAttr != null ) {
-			sphere.radius = Double.parseDouble( radiusAttr.getNodeValue() );
+			radius = Double.parseDouble( radiusAttr.getNodeValue() );
 		}
-		sphere.material = parseMaterial(dataNode, "material");	
-    	return sphere;
+		Material material = parseMaterial(dataNode, "material");	
+    	return new Sphere(center, radius, material);
 	}
 
 	/**
 	 * Create a box object.
 	 */
 	public static Box createBox(Node dataNode) {
-		Box box = new Box();
+		Point3d min = new Point3d( -1, -1, -1 );
+		Point3d max = new Point3d( 1, 1, 1 );
+
 		Node minAttr = dataNode.getAttributes().getNamedItem("min");
 		if ( minAttr != null ) {
             Scanner s = new Scanner( minAttr.getNodeValue() );
             double x = s.nextDouble();
             double y = s.nextDouble();
             double z = s.nextDouble();
-            box.min = new Point3d(x, y, z);
+            min = new Point3d(x, y, z);
             s.close();
 		}
 		Node maxAttr = dataNode.getAttributes().getNamedItem("max");
@@ -415,33 +422,34 @@ public class Parser extends Scene {
             double x = s.nextDouble();
             double y = s.nextDouble();
             double z = s.nextDouble();
-            box.max = new Point3d(x, y, z);
+            max = new Point3d(x, y, z);
             s.close();
 		}		
-		box.material = parseMaterial(dataNode, "material");
-    	return box;
+		Material material = parseMaterial(dataNode, "material");
+    	return new Box(min, max, material);
 	}	
 	
 	/**
 	 * Create a mesh object.
 	 */
 	public static Mesh createMesh(Node dataNode) {
-        Mesh mesh = new Mesh();
-        mesh.name = dataNode.getAttributes().getNamedItem("name").getNodeValue();
+		PolygonSoup soup;
+    	String name = dataNode.getAttributes().getNamedItem("name").getNodeValue();
         Node filenameAttr = dataNode.getAttributes().getNamedItem("filename");
         if ( filenameAttr != null ) {
-        	mesh.soup = new PolygonSoup( filenameAttr.getNodeValue() );
-        	if ( !Mesh.meshMap.containsKey(mesh.name) )
-        		Mesh.meshMap.put(mesh.name, mesh);
+        	soup = new PolygonSoup( filenameAttr.getNodeValue() );
         } else {
 			String instance = dataNode.getAttributes().getNamedItem("ref").getNodeValue();
-			Mesh other = Mesh.meshMap.get(instance);
-			if ( other != null ) {
-				mesh.soup = other.soup;
+			Mesh other = Mesh.getMeshMap().get(instance);
+			assert( other != null );
+			if( other == null ) {
+				System.err.println(instance + " is not existing.");
+				return null;
 			}
+			soup = other.getSoup();
         }
-        mesh.material = parseMaterial(dataNode, "material");
-    	return mesh;    	
+        Material material = parseMaterial(dataNode, "material");
+    	return new Mesh(name, soup, material);    	
 	}
 
 	/**

@@ -9,18 +9,11 @@ import javax.vecmath.Vector3d;
 public class Sphere extends Intersectable {
     
 	/** Radius of the sphere. */
-	public double radius = 1;
+	public double radius;// = 1;
     
 	/** Location of the sphere center. */
-	public Point3d center = new Point3d( 0, 0, 0 );
-    
-    /**
-     * Default constructor
-     */
-    public Sphere() {
-    	super();
-    }
-    
+	public Point3d center;// = new Point3d( 0, 0, 0 );
+        
     /**
      * Creates a sphere with the request radius and center. 
      * 
@@ -28,11 +21,10 @@ public class Sphere extends Intersectable {
      * @param center
      * @param material
      */
-    public Sphere( double radius, Point3d center, Material material ) {
-    	super();
+    public Sphere( Point3d center, double radius, Material material ) {
+    	super(material);
     	this.radius = radius;
     	this.center = center;
-    	this.material = material;
     }
     
     @Override
