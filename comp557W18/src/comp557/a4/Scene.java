@@ -2,7 +2,6 @@ package comp557.a4;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,10 +60,11 @@ public abstract class Scene {
      * @param irs Given a list of intersection results.
      * @return The color of the given pixel.
      */
-    private Color4f colour(List<IntersectResult> irs, Camera cam) {
-    	final boolean isPrint = ran.nextInt(10000) == 0;
+    private Color4f colour(List<IntersectResult> irs) {
+    	final boolean isPrint = ran.nextInt(100000) == 0;
     	// sort the results based on t. I go forward and add.
-    	irs.sort(Comparator.comparingDouble(IntersectResult::getT));
+    	//irs.sort(Comparator.comparingDouble(IntersectResult::getT));
+    	// Now they are already sorted.
     	// get all the lights -- already done!
     	//List<Light> lights = Light.getAllLights();
     	// the colour starts off at 0
@@ -102,7 +102,7 @@ public abstract class Scene {
         		}
         		
         		// 07Lighting p8 specular: Ls = ks I max(0, n*h)^p
-            	Vector3d h = new Vector3d(cam.getFrom());
+            	Vector3d h = new Vector3d(render.getCamera().getFrom());
             	h.sub(p0);
             	h.normalize();
             	h.add(l);
@@ -132,6 +132,7 @@ public abstract class Scene {
         	if(c.w >= 1.0f) break;
         }
         // turn on background. This will render an all alpha = 1
+        // FIXME: have it be any alpha
         //alphaBlend(c, render.getBgcolour());
         return c;
     }
@@ -162,7 +163,7 @@ public abstract class Scene {
             	
                 // Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 // update the render image
-                render.setPixel(x, y, colour(irs, cam));
+                render.setPixel(x, y, colour(irs));
             }
         }
         lights.clear();

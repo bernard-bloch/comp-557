@@ -5,7 +5,8 @@ package comp557.a4;
  */
 public abstract class Intersectable {
 	
-	/** Material for this intersectable surface */
+	/** Material for this intersectable surface
+	 * COULD BE NULL */
 	protected Material material;
 	
 	/** 
@@ -13,7 +14,6 @@ public abstract class Intersectable {
 	 */
 	public Intersectable(Material m) {
 		this.material = m;
-		//new Material("default", new Color4f(1,1,1,1), new Color4f(0,0,0,0), 64);
 	}
 	
 	/**

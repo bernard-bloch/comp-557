@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.vecmath.Color4f;
 import javax.vecmath.Matrix4d;
 import comp557.a4.IntersectResult;
 import comp557.a4.Intersectable;
