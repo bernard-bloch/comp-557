@@ -105,7 +105,7 @@ public class A4App extends JFrame implements Runnable {
 			
 			long rstart = System.nanoTime();
 			
-			scene.render(/*true what's a panel??? useless*/);
+			scene.render(/*implied true*/);
 			
 			double ptime = (double)((rstart-pstart)/1E9);
 			double rtime = (double)((System.nanoTime()-rstart)/1E9);

@@ -1,5 +1,7 @@
 package comp557.a4;
 
+import javax.vecmath.Color4f;
+
 /**
  * Abstract class for an intersectable surface 
  */
@@ -12,7 +14,7 @@ public abstract class Intersectable {
 	 * Default constructor, creates the default material for the surface
 	 */
 	public Intersectable() {
-		this.material = new Material();
+		this.material = new Material("default", new Color4f(1,1,1,1), new Color4f(0,0,0,0), 64);
 	}
 	
 	/**

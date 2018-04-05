@@ -47,9 +47,12 @@ public abstract class Scene {
     	colour.w = 1;
     }    
     
+	static DecimalFormat df = new DecimalFormat("#.00");
 	static private String tup(Tuple3d a) {
-		DecimalFormat df = new DecimalFormat("#.0");
 		return "(" + df.format(a.x) + ", " + df.format(a.y) + ", " + df.format(a.z) + ")";
+	}
+    static private String tup(Color3f a) {
+    	return tup(new Vector3d(a));
 	}
 	Random ran = new Random(0);
     /**
@@ -70,7 +73,8 @@ public abstract class Scene {
         	
     		if(isPrint) System.err.println("for " + ir);
         	Material m = ir.getMaterial();
-        	assert(m != null);
+        	Color4f kd = m.getDiffuse();
+        	Color4f ks = m.getSpecular();
         	// add contributions from lights.
         	Color3f diffuse = new Color3f();
         	Color3f specular = new Color3f();
@@ -85,14 +89,12 @@ public abstract class Scene {
         		float nl = (float)n.dot(l);
         		Color3f I = new Color3f(light.color.x, light.color.y, light.color.z);
         		if(nl > 0.0f) {
-	        		Color3f kd = new Color3f(m.diffuse.x, m.diffuse.y, m.diffuse.z);
 	        		Color3f Ld = new Color3f(kd.x * I.x, kd.y * I.y, kd.z * I.z);
-	        		Ld.scale(nl /* * light.color.w <- does not illumiate sample scenes*/);
+	        		// fixed light to default to w=1 instead of w=0 */
+	        		Ld.scale(nl * light.color.w);
 	        		diffuse.add(Ld);
-	        		if(isPrint) {
-	        			DecimalFormat df = new DecimalFormat("#.00");
+	        		if(isPrint)
             			System.err.println("    l = "+tup(l)+"; n = "+tup(n)+"; l*n = "+df.format(nl));
-	        		}
         		}
         		
         		// 07Lighting p8 specular: Ls = ks I max(0, n*h)^p
@@ -101,21 +103,25 @@ public abstract class Scene {
     			h.normalize(); // doesn't say anything about error at singular point?
     			float nh = (float)n.dot(h);
     			if(nh > 0.0f) {
-            		float p = m.shinyness;
-                	Color4f ks = m.specular;
+            		float p = m.getShinyness();
 	        		Color3f Ls = new Color3f(ks.x * I.x, ks.y * I.y, ks.z * I.z);
 	        		Ls.scale((float)Math.pow(nh, p));
-	        		Ls.scale(nh /* * light.color.w*/);
+	        		Ls.scale(nh * light.color.w);
 	        		specular.add(Ls);
+            		if(isPrint)
+            			System.err.println("    p = "+p+" spec n*h = "+df.format(nl)+" Ls = "+tup(Ls));
         		}
 
         	}
         	// use a probable heuristic
-        	Vector3f diffuseVec = new Vector3f(diffuse);
-        	Vector3f specularVec = new Vector3f(diffuse);
-        	float alpha = diffuseVec.length() * m.diffuse.w + specularVec.length() * m.specular.w;
-        	Color4f beautiful = new Color4f(diffuse.x + specular.x + ambient.x, diffuse.y + specular.y + ambient.y, diffuse.z + specular.z + ambient.z, alpha);
+        	Vector3f diffuseVec = new Vector3f(diffuse); // FIXME
+        	Vector3f specularVec = new Vector3f(specular);
+        	float alpha = diffuseVec.length() * kd.w + specularVec.length() * ks.w;
+    		if(isPrint)
+    			System.err.println("    alpha = "+df.format(alpha));
+        	Color4f beautiful = new Color4f(diffuseVec.x + specularVec.x + ambient.x, diffuseVec.y + specularVec.y + ambient.y, diffuseVec.z + specularVec.z + ambient.z, alpha);
         	beautiful.clamp(0.0f, 1.0f);
+        	beautiful.w = 1.0f; /* @fixme All the test scenes do not set alpha. */
     		alphaBlend(c, beautiful);
         	// if the alpha is 1, just stop
         	if(c.w >= 1.0f) break;
@@ -125,7 +131,7 @@ public abstract class Scene {
         return c;
     }
     
-    /**
+	/**
      * renders the scene
      */
     public void render() {
@@ -136,7 +142,7 @@ public abstract class Scene {
         
         // Material has no constructor arguments and all public data
         // I don't want to fix this. However, the alpha blending is much simpler when you pre-multiply
-        Material.premultiplyAll();
+        //Material.premultiplyAll();
         
         for ( int y = 0; y < h && !render.isDone(); y++ ) { // bottom to top
         	for ( int x = 0; x < w && !render.isDone(); x++ ) { // left to right
@@ -173,8 +179,8 @@ public abstract class Scene {
         
     }
     
-	// TODO: Objective 1: generate rays given the provided parmeters
-	// What do you have against OOP? This is moved to constructor in Ray.java.
+	// Objective 1: generate rays given the provided parmeters
+	// I moved this to constructor in Ray.java.
 
 	/**
 	 * Shoot a shadow ray in the scene and get the result.

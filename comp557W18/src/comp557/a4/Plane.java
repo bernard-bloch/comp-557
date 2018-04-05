@@ -28,7 +28,7 @@ public class Plane extends Intersectable {
     @Override
     public IntersectResult intersect( Ray ray ) {
     
-        // TODO: Objective 4: intersection of ray with plane
+        // Objective 4: intersection of ray with plane
     	// https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
     	// plane: (p - p0)*n = 0;
     	// line: p = tl + l0;
@@ -45,8 +45,8 @@ public class Plane extends Intersectable {
     	Point3d intersect = ray.getPoint(t);
     	// decide which colour to give the material. Project the ray onto the plane.
     	Vector3d i = new Vector3d(intersect);
-    	int x = (int)i.dot(new Vector3d(n.y, n.z, n.x));
-    	int y = (int)i.dot(new Vector3d(n.z, n.x, n.y));
+    	int x = (int)Math.floor(i.dot(new Vector3d(n.y, n.z, n.x)));
+    	int y = (int)Math.floor(i.dot(new Vector3d(n.z, n.x, n.y)));
     	Material m = ((x ^ y) & 1) != 0 ? material : material2;
     	return new IntersectResult(n, intersect, m, t);
     }

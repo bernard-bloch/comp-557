@@ -12,32 +12,28 @@ import javax.vecmath.Color4f;
 public class Material {
 	
 	/** Static member to access all the materials */
-	public static Map<String,Material> materialMap = new HashMap<String,Material>();
+	private static Map<String,Material> materialMap = new HashMap<String,Material>();
 	
 	/** Material name */
-    public String name = "";
+    private String name;// = "";
     
     /** Diffuse colour, defaults to white */
-    public Color4f diffuse = new Color4f(1,1,1,1);
+    private Color4f diffuse;// = new Color4f(1,1,1,1);
     
     /** Specular colour, default to black (no specular highlight) */
-    public Color4f specular = new Color4f(0,0,0,0);
+    private Color4f specular;// = new Color4f(0,0,0,0);
     
     /** Specular hardness, or exponent, default to a reasonable value */ 
-    public float shinyness = 64;
+    private float shinyness;// = 64;
  
-    private boolean isPremultiplied = false;
-    
-    /**
-     * Default constructor
-     */
-    public Material() {
-    	// do nothing
-    }
-    
-    public String toString() {
-    	return name;
-    }
+	public Material(String name, Color4f diffuse, Color4f specular, float shinyness) {
+		premultiply(diffuse);
+		premultiply(specular);
+		this.name = name;
+		this.diffuse = diffuse;
+		this.specular = specular;
+		this.shinyness = shinyness;
+	}
     
     // https://en.wikipedia.org/wiki/Alpha_compositing
     private static void premultiply(Color4f c) {
@@ -49,15 +45,30 @@ public class Material {
 		c.y /= c.w;
 		c.z /= c.w;
     }
-    
-    public static void premultiplyAll() {
-    	// https://stackoverflow.com/questions/46898/how-to-efficiently-iterate-over-each-entry-in-a-map
-    	materialMap.forEach((k, v) -> {
-    		if(v.isPremultiplied) return;
-    		premultiply(v.diffuse);
-    		premultiply(v.specular);
-    		v.isPremultiplied = true;
-    	} );
+
+    public String toString() {
+    	return name;
     }
+        
+    public static Map<String,Material> getMaterialMap() {
+    	return materialMap;
+    }
+
+	public String getName() {
+		return name;
+	}
+
+	public Color4f getDiffuse() {
+		return diffuse;
+	}
+
+	public Color4f getSpecular() {
+		return specular;
+	}
+
+	public float getShinyness() {
+		return shinyness;
+	}
+
     
 }

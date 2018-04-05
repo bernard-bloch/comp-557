@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.util.Scanner;
 
 import javax.vecmath.Color3f;
+import javax.vecmath.Color4f;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -37,7 +38,7 @@ public class Parser extends Scene {
             String nodeName = n.getNodeName();
             if ( nodeName.equalsIgnoreCase( "material" ) ) {                
                 Material material = Parser.createMaterial(n);
-                Material.materialMap.put( material.name, material );
+                Material.getMaterialMap().put( material.getName(), material );
             } else if ( nodeName.equalsIgnoreCase( "light" ) ) {                
                 Light light = Parser.createLight(n);
                 this.lights.put( light.name, light);
@@ -169,7 +170,7 @@ public class Parser extends Scene {
         	float r = s.nextFloat();
             float g = s.nextFloat();
             float b = s.nextFloat();
-            float a = (s.hasNextFloat() ? s.nextFloat() : 0);
+            float a = (s.hasNextFloat() ? s.nextFloat() : 1); // fixed 0 -> 1
             light.color.set(r,g,b,a);   
             s.close();    	
         }
@@ -265,15 +266,25 @@ public class Parser extends Scene {
 	 * Create a material.
 	 */
 	public static Material createMaterial(Node dataNode) {
-		Material material;
+		/** Material name */
+	    String name = "material";
+	    
+	    /** Diffuse colour, defaults to white */
+	    Color4f diffuse = new Color4f(1,1,1,1);
+	    
+	    /** Specular colour, default to black (no specular highlight) */
+	    Color4f specular = new Color4f(0,0,0,0);
+	    
+	    /** Specular hardness, or exponent, default to a reasonable value */ 
+	    float shinyness = 64;
+
 		Node refAttr = dataNode.getAttributes().getNamedItem("ref");
 		if( refAttr  != null ) {
-			material = Material.materialMap.get( refAttr.getNodeValue() );
+			return Material.getMaterialMap().get( refAttr.getNodeValue() );
 		} else {
-			material = new Material();			
 	    	Node nameAttr = dataNode.getAttributes().getNamedItem("name");
 	    	if ( nameAttr != null ) {
-	    		material.name = nameAttr.getNodeValue();
+	    		name = nameAttr.getNodeValue();
 	    	}
 	    	Node diffuseAttr = dataNode.getAttributes().getNamedItem("diffuse");
 	    	if ( diffuseAttr != null ) {
@@ -282,7 +293,7 @@ public class Parser extends Scene {
 	            float g = s.nextFloat();
 	            float b = s.nextFloat();
 	            float a = (s.hasNextFloat() ? s.nextFloat() : 1);
-	            material.diffuse.set(r,g,b,a);
+	            diffuse.set(r,g,b,a);
 	            s.close();
 	    	}
 	    	Node specularAttr = dataNode.getAttributes().getNamedItem("specular");
@@ -292,15 +303,15 @@ public class Parser extends Scene {
 	            float g = s.nextFloat();
 	            float b = s.nextFloat();
 	            float a = (s.hasNextFloat() ? s.nextFloat() : 1);
-	            material.specular.set(r,g,b,a);   
+	            specular.set(r,g,b,a);   
 	            s.close();
 	    	}
 	    	Node hardnessAttr = dataNode.getAttributes().getNamedItem("hardness");
 	    	if ( hardnessAttr != null ) {
-	    		material.shinyness = Float.parseFloat( hardnessAttr.getNodeValue() );
+	    		shinyness = Float.parseFloat( hardnessAttr.getNodeValue() );
 	    	}
 		}
-		return material;
+		return new Material(name, diffuse, specular, shinyness);
 	}
 
 	/**
@@ -447,7 +458,7 @@ public class Parser extends Scene {
 			if ( name.equalsIgnoreCase(tagName) ) {
     			Node refNode = n.getAttributes().getNamedItem("ref");
     			if( refNode != null ) { 
-					material = Material.materialMap.get( refNode.getNodeValue() );
+					material = Material.getMaterialMap().get( refNode.getNodeValue() );
     			} else {
     				material = Parser.createMaterial(n);
     			}
