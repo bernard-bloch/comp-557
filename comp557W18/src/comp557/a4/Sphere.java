@@ -42,6 +42,7 @@ public class Sphere extends Intersectable {
     	if(disc < 0) return null;
     	// calculate parameters, want the first intersection
     	double t = -d_dot_p_min_c - Math.sqrt(disc);
+    	if(t < 0) return null;
     	Point3d intersect = ray.getPoint(t);
     	Vector3d normal = new Vector3d(intersect);
     	normal.sub(center);
