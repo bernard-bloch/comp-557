@@ -95,6 +95,7 @@ public abstract class Scene {
         		Vector3d n = ir.getNormal();
         		float nl = (float)n.dot(l);
         		Color3f I = new Color3f(light.color.x, light.color.y, light.color.z);
+        		I.scale((float)light.power);
         		if(nl > 0.0f) {
 	        		Color3f Ld = new Color3f(kd.x * I.x, kd.y * I.y, kd.z * I.z);
 	        		// fixed light to default to w=1 instead of w=0 */
@@ -114,6 +115,7 @@ public abstract class Scene {
     			if(nh > 0.0f) {
             		float p = m.getShinyness();
 	        		Color3f Ls = new Color3f(ks.x * I.x, ks.y * I.y, ks.z * I.z);
+	        		Ls.scale((float)light.power);
             		if(isPrint)
             			System.err.println("    Ls(inte)="+Ls);
 	        		Ls.scale((float)Math.pow(nh, p));
@@ -212,13 +214,8 @@ public abstract class Scene {
 		Ray ray = new Ray(ir.getPoint(), toLight);
 		//System.err.println("ray "+ray);
     	for(Intersectable il : surfaceList) {
-			System.err.println("intersected? " + il);
     		IntersectResult shadow = il.intersect(ray);
-    		if(shadow != null) {
-    			if(shadow.getT() < mag) {
-        			return true;
-    			}
-    		}
+    		if(shadow != null && shadow.getT() < mag) return true;
     	}
 		return false;
 	}
