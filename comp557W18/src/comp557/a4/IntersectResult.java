@@ -70,6 +70,10 @@ public class IntersectResult /*implements Comparable<IntersectResult>*/ {
 		return material;
 	}
 	
+	public void setMaterial(Material m) {
+		material = m;
+	}
+	
 	static private String tup(Tuple3d a) {
 		DecimalFormat df = new DecimalFormat("#.0");
 		return "(" + df.format(a.x) + ", " + df.format(a.y) + ", " + df.format(a.z) + ")";

@@ -55,15 +55,15 @@ public class SceneNode extends Intersectable {
     @Override
     public IntersectResult intersect( Ray ray ) {
     	Ray tmpRay = new Ray(ray, Minv);
-    	IntersectResult tmpResult = null;
+    	IntersectResult ir = null;
         for ( Intersectable s : children ) {
-            IntersectResult r = s.intersect( tmpRay );
-            if(r == null) continue;
-            if(tmpResult == null || tmpResult.getT() > r.getT()) tmpResult = r;
+            IntersectResult irTmp = s.intersect( tmpRay );
+            if(irTmp != null && (ir == null || ir.getT() > irTmp.getT())) ir = irTmp;
         }
-        if(tmpResult == null) return null;
-        tmpResult.transform(M);
-        return tmpResult;
+        if(ir == null) return null;
+        ir.transform(M);
+        if(material != null) ir.setMaterial(material);
+        return ir;
     }
     
     public String toString() {
