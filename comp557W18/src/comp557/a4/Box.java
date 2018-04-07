@@ -37,34 +37,44 @@ public class Box extends Intersectable {
 	private final class MinMax extends Intersectable {
 		private Axes axis;
 		private Plane minPlane, maxPlane;
-		private Point2d min, max;
+		private double min, max;
 		MinMax(final Axes axis, final Point3d min, final Point3d max, final Material m) {
 			super(m);
 			this.axis = axis;
 			this.minPlane = new Plane(min, axis.getAxisNeg(), m, null);
 			this.maxPlane = new Plane(max, axis.getAxisPos(), m, null);
-			this.min = axis.getNullProj().apply(min);
-			this.max = axis.getNullProj().apply(max);
+			this.min = axis.getProj().apply(min);
+			this.max = axis.getProj().apply(max);
 		}
 		public IntersectResult intersect(Ray ray) {
-			IntersectResult irMin, irMax;
 			
-			//double eye = axis.getProj().apply(ray.getEyePoint());
-			
+			// get the points that could intersect
+			double eye = axis.getProj().apply(ray.getEyePoint());
+			Point3d direction = new Point3d(ray.getViewDirection());
+			double dir = axis.getProj().apply(direction);
+			Plane could = null;
+			if(dir < 0.0) {
+				if(eye > max) could = maxPlane;
+			} else if(dir > 0.0) {
+				if(eye < min) could = minPlane;
+			}
+			if(could == null) return null;
+
+			IntersectResult ir;
 			/*irMin = minPlane.intersect(ray);
 			if(irMin != null) {
 				Point2d proj = axis.getNullProj().apply(irMin.getPoint());
 				if(min.x < proj.x || min.y < proj.x) irMin = null;
 			}*/
-			irMax = maxPlane.intersect(ray);
+			ir = could.intersect(ray);
 			/*if(irMax != null) {
 				Point2d proj = axis.getNullProj().apply(irMax.getPoint());
-				if(max.x > proj.x || max.y > proj.x) irMax = null;
+				if(proj.x > max.x || proj.y > max.x) irMax = null;
 			}*/
 			/*if(irMin == null) return irMax;
 			if(irMax == null) return irMin;
 			return irMin.getT() < irMax.getT() ? irMin : irMax;*/
-			return irMax;
+			return ir;
 		}
 		public String toString() {
 			return "MinMax"+axis+" is "+minPlane+" and "+maxPlane+" with "+min+" and "+max;
@@ -76,13 +86,9 @@ public class Box extends Intersectable {
      */
     public Box(Point3d min, Point3d max, Material m) {
     	super(m);
-    	System.err.println("Box: " + min + ";" + max); 
     	x = new MinMax(Axes.X, min, max, m);
-    	System.err.println("x: "+x);
     	y = new MinMax(Axes.Y, min, max, m);
-    	System.err.println("y: "+y);
     	z = new MinMax(Axes.Z, min, max, m);
-    	System.err.println("z: "+z);
     }
 
 	@Override
@@ -94,7 +100,6 @@ public class Box extends Intersectable {
 		if(irx != null && (iry == null || irx.getT() < iry.getT())) iry = irx;
 		if(iry != null && (irz == null || iry.getT() < irz.getT())) irz = iry;
 		return irz;
-		/*return irz;*/
 	}	
     
 }
