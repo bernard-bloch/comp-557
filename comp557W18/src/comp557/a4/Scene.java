@@ -207,11 +207,17 @@ public abstract class Scene {
 		// Objective 5: check for shdows and use it in your lighting computation
 		// TODO: boolean is not a good thing for transparent scenes
 		
+		// epsilon
+		Point3d p0 = new Point3d(ir.getNormal());
+		p0.scale(0.01);
+		p0.add(ir.getPoint());
+		
 		Vector3d toLight = new Vector3d(light.from);
-		toLight.sub(ir.getPoint());
+		toLight.sub(p0);
 		double mag = toLight.length();
+		
 		//System.err.println("light "+light+" is at "+toLight);
-		Ray ray = new Ray(ir.getPoint(), toLight);
+		Ray ray = new Ray(p0, toLight);
 		//System.err.println("ray "+ray);
     	for(Intersectable il : surfaceList) {
     		IntersectResult shadow = il.intersect(ray);

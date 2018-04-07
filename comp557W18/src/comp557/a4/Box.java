@@ -82,12 +82,13 @@ public class Box extends Intersectable {
 	@Override
 	public IntersectResult intersect(Ray ray) {
 		// Objective 6: intersection of Ray with axis aligned box
-		IntersectResult irx = x.intersect(ray);
+		//IntersectResult irx = x.intersect(ray);
 		IntersectResult iry = y.intersect(ray);
-		IntersectResult irz = z.intersect(ray);
+		/*IntersectResult irz = z.intersect(ray);
 		if(irx != null && (iry == null || irx.getT() < iry.getT())) iry = irx;
 		if(iry != null && (irz == null || iry.getT() < irz.getT())) irz = iry;
-		return irz;
+		return irz;*/
+		return iry;
 	}	
     
 }
