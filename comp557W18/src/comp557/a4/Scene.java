@@ -2,9 +2,7 @@ package comp557.a4;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import javax.vecmath.Color3f;
@@ -24,7 +22,7 @@ public abstract class Scene {
     protected List<Intersectable> surfaceList = new ArrayList<Intersectable>();
 	
 	/** All scene lights */
-	protected Map<String,Light> lights = new HashMap<String,Light>();
+	//protected Map<String,Light> lights = new HashMap<String,Light>();
 
     /** Contains information about how to render the scene */
     protected Render render;
@@ -81,10 +79,11 @@ public abstract class Scene {
         	// add contributions from lights.
         	Vector3f diffuse = new Vector3f();
         	Vector3f specular = new Vector3f();
-        	for(Light light : lights.values()) {
+        	List<Light> lights = Light.getLights();
+        	for(Light light : lights) {
 
         		if(isPrint) System.err.println("  for " + light);		
-        		Vector3d l = new Vector3d(light.from);
+        		Vector3d l = new Vector3d(light.getFrom());
         		l.sub(p0);
         		l.normalize();
         		
@@ -94,12 +93,13 @@ public abstract class Scene {
         		// 07Lighting p5 diffuse: Ld = kd I max(0, n*l)
         		Vector3d n = ir.getNormal();
         		float nl = (float)n.dot(l);
-        		Color3f I = new Color3f(light.color.x, light.color.y, light.color.z);
-        		I.scale((float)light.power);
+        		Color4f lightColour = light.getColour();
+        		Color3f I = new Color3f(lightColour.x, lightColour.y, lightColour.z);
+        		I.scale((float)light.getPower());
         		if(nl > 0.0f) {
 	        		Color3f Ld = new Color3f(kd.x * I.x, kd.y * I.y, kd.z * I.z);
 	        		// fixed light to default to w=1 instead of w=0 */
-	        		Ld.scale(nl * light.color.w);
+	        		Ld.scale(nl * lightColour.w);
 	        		diffuse.add(Ld);
 	        		if(isPrint)
             			System.err.println("    l = "+tup(l)+"; n = "+tup(n)+"; l*n = "+df.format(nl));
@@ -115,7 +115,7 @@ public abstract class Scene {
     			if(nh > 0.0f) {
             		float p = m.getShinyness();
 	        		Color3f Ls = new Color3f(ks.x * I.x, ks.y * I.y, ks.z * I.z);
-	        		Ls.scale((float)light.power);
+	        		Ls.scale((float)light.getPower());
             		if(isPrint)
             			System.err.println("    Ls(inte)="+Ls);
 	        		Ls.scale((float)Math.pow(nh, p));
@@ -151,6 +151,11 @@ public abstract class Scene {
         int w = cam.getImageSize().width;
         int h = cam.getImageSize().height;
         
+        List<Light> lights = Light.getLights();
+        for(Light l : lights) {
+        	System.err.println("Light " + l);
+        }
+        
         for ( int y = 0; y < h && !render.isDone(); y++ ) { // bottom to top
         	for ( int x = 0; x < w && !render.isDone(); x++ ) { // left to right
             	
@@ -167,7 +172,7 @@ public abstract class Scene {
                 render.setPixel(x, y, colour(irs));
             }
         }
-        lights.clear();
+        Light.getLights().clear();
         
         // save the final render image
         render.save();
@@ -212,7 +217,7 @@ public abstract class Scene {
 		p0.scale(0.01);
 		p0.add(ir.getPoint());
 		
-		Vector3d toLight = new Vector3d(light.from);
+		Vector3d toLight = new Vector3d(light.getFrom());
 		toLight.sub(p0);
 		double mag = toLight.length();
 		

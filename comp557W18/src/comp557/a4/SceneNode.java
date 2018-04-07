@@ -1,7 +1,6 @@
 package comp557.a4;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,29 +23,38 @@ import comp557.a4.Ray;
 public class SceneNode extends Intersectable {
 	
 	/** Static map for accessing scene nodes by name, to perform instancing */
-	static public Map<String,SceneNode> nodeMap = new HashMap<String,SceneNode>();
+	static private Map<String,SceneNode> nodeMap = new HashMap<String,SceneNode>();
 	
-    public String name;
+    private String name;
    
     /** Matrix transform for this node */
-    public Matrix4d M;
+    private Matrix4d M;
     
     /** Inverse matrix transform for this node */
-    public Matrix4d Minv;
+    private Matrix4d Minv;
     
     /** Child nodes */
-    public List<Intersectable> children;
+    private List<Intersectable> children;
     
     /**
      * Default constructor.
      * Note that all nodes must have a unique name, so that they can used as an instance later on.
      */
-    public SceneNode() {
-    	super(null);
-    	this.name = "";
-    	this.M = new Matrix4d();
+    public SceneNode(String name, Matrix4d M, List<Intersectable> children, Material m) {
+    	super(m);
+
+    	this.name = name;
+    	if ( !nodeMap.containsKey(name) ) {
+        	nodeMap.put( name, this );
+        } else {
+        	System.err.println("SceneNode(): node with name " + name + " already exists!");
+        }	        
+
+    	this.M = M;
     	this.Minv = new Matrix4d();
-    	this.children = new LinkedList<Intersectable>();
+		// cache the inverse matrix, since we only need to compute it once!
+		Minv.invert(M);		// should be equal to the transpose don't have to cache it at all
+    	this.children = children;
     }
     
     /**
@@ -69,5 +77,19 @@ public class SceneNode extends Intersectable {
     public String toString() {
     	return "SceneNode"+name;
     }
+
+	/**
+	 * @return the nodeMap
+	 */
+	public static Map<String, SceneNode> getNodeMap() {
+		return nodeMap;
+	}
+
+	/**
+	 * @return the children
+	 */
+	public List<Intersectable> getChildren() {
+		return children;
+	}
 }
 

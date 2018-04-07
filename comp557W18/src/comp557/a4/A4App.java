@@ -93,7 +93,7 @@ public class A4App extends JFrame implements Runnable {
 	@Override
 	public void run() {
 		try {
-			SceneNode.nodeMap.clear();
+			SceneNode.getNodeMap().clear();
 			InputStream inputStream = new FileInputStream( new File(currentFile) );
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();

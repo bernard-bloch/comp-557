@@ -1,6 +1,8 @@
 package comp557.a4;
 
 import java.awt.Dimension;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.vecmath.Color3f;
@@ -40,8 +42,8 @@ public class Parser extends Scene {
                 Material material = Parser.createMaterial(n);
                 Material.getMaterialMap().put( material.getName(), material );
             } else if ( nodeName.equalsIgnoreCase( "light" ) ) {                
-                Light light = Parser.createLight(n);
-                this.lights.put( light.name, light);
+                /*Light light = */Parser.createLight(n);
+                //this.lights.put( light.getName(), light);
             } else if ( nodeName.equalsIgnoreCase( "render" ) ) {                
                 this.render = Parser.createRender(n);
             } else if ( nodeName.equalsIgnoreCase( "node" ) ) {
@@ -66,17 +68,16 @@ public class Parser extends Scene {
 	 * Create a scenegraph node.
 	 */
 	public static SceneNode createSceneNode(Node dataNode) {
-		SceneNode sceneNode = new SceneNode();
-        sceneNode.name = dataNode.getAttributes().getNamedItem("name").getNodeValue();		
+        String name = dataNode.getAttributes().getNamedItem("name").getNodeValue();		
+        List<Intersectable> children = new LinkedList<>();
 		Node refAttr = dataNode.getAttributes().getNamedItem("ref");
 		if ( refAttr != null ) {
 			// add references to all child nodes and geometries
 			//
-			SceneNode other = SceneNode.nodeMap.get( refAttr.getNodeValue() );
+			SceneNode other = SceneNode.getNodeMap().get( refAttr.getNodeValue() );
 			if ( other != null ) {
-				for (Intersectable s : other.children) {
-					sceneNode.children.add(s);
-				}
+				List<Intersectable> otherChildren = other.getChildren();
+				for (Intersectable s : otherChildren) children.add(s);
 			}
 		} else {
 	        // create geometries for this node.
@@ -89,31 +90,27 @@ public class Parser extends Scene {
 	            String nodeName = n.getNodeName();
 	        	if ( nodeName.compareToIgnoreCase( "node") == 0 ) {
 	                SceneNode childNode = Parser.createSceneNode(n) ;
-	                sceneNode.children.add( childNode );
+	                children.add( childNode );
 	            } else if ( nodeName.equalsIgnoreCase( "plane" ) ) {
 	        		Plane plane = Parser.createPlane(n);
-	        		sceneNode.children.add( plane );
+	        		children.add( plane );
 	            } else if ( nodeName.equalsIgnoreCase( "box" ) ) {
 	        		Box box = Parser.createBox(n);
-	        		sceneNode.children.add( box );
+	        		children.add( box );
 	            } else if ( nodeName.equalsIgnoreCase( "sphere" ) ) {
 	        		Sphere sphere = Parser.createSphere(n);
-	        		sceneNode.children.add( sphere );
+	        		children.add( sphere );
 	            } else if ( nodeName.equalsIgnoreCase( "mesh" ) ) {
 	            	Mesh mesh = Parser.createMesh(n);
-	            	sceneNode.children.add( mesh );
+	            	children.add( mesh );
 	            }
 	        }	        
-            if ( !SceneNode.nodeMap.containsKey(sceneNode.name) ) {
-            	SceneNode.nodeMap.put( sceneNode.name, sceneNode );
-            } else {
-            	System.err.println("Parser.createSceneNode(): node with name " + sceneNode.name + " already exists!");
-            }	        
 		}
 		
 		// Build the scene node transform.
 		//
-		sceneNode.M.setIdentity();        
+	    Matrix4d M = new Matrix4d();
+		M.setIdentity();        
 		Node translationAttr = dataNode.getAttributes().getNamedItem("translation");
 		if ( translationAttr != null ) {
         	Scanner s = new Scanner( translationAttr.getNodeValue() );
@@ -124,7 +121,7 @@ public class Parser extends Scene {
         	Vector3d t = new Vector3d(x,y,z);
         	Matrix4d T = new Matrix4d();
         	T.set(t);
-        	sceneNode.M.mul(T);
+        	M.mul(T);
 		}		
 		Node rotationAttr = dataNode.getAttributes().getNamedItem("rotation");
 		if ( rotationAttr != null ) {
@@ -135,11 +132,11 @@ public class Parser extends Scene {
             s.close(); 
         	Matrix4d R = new Matrix4d();
         	R.rotX( Math.toRadians(degX) );
-        	sceneNode.M.mul(R);
+        	M.mul(R);
         	R.rotY( Math.toRadians(degY) );
-        	sceneNode.M.mul(R);
+        	M.mul(R);
         	R.rotZ( Math.toRadians(degZ) );
-        	sceneNode.M.mul(R);
+        	M.mul(R);
 		}
 		Node scaleAttr = dataNode.getAttributes().getNamedItem("scale");
 		if ( scaleAttr != null ) {
@@ -149,21 +146,33 @@ public class Parser extends Scene {
             S.setElement(0,0,s.nextDouble());
             S.setElement(1,1,s.nextDouble());
             S.setElement(2,2,s.nextDouble());
-            sceneNode.M.mul( S );
+            M.mul( S );
             s.close(); 
 		}				
-		// cache the inverse matrix, since we only need to compute it once!
-		sceneNode.Minv.invert(sceneNode.M);		
-		sceneNode.material = parseMaterial(dataNode, "material");					
-		return sceneNode;	
+		Material material = parseMaterial(dataNode, "material");					
+		return new SceneNode(name, M, children, material);
 	}
 	
 	/**
 	 * Create a light.
 	 */
 	public static Light createLight(Node dataNode) {
-		Light light = new Light();
-        light.name = dataNode.getAttributes().getNamedItem("name").getNodeValue();        
+		/** Light name */
+	    String name = "";
+	    
+	    /** Light colour, default is white */
+	    Color4f color = new Color4f(1,1,1,1);
+	    
+	    /** Light position, default is the origin */
+	    Point3d from = new Point3d(0,0,0);
+	    
+	    /** Light intensity, I, combined with colour is used in shading */
+	    double power = 1.0;
+	    
+	    /** Type of light, default is a point light */
+	    String type = "point";
+
+	    name = dataNode.getAttributes().getNamedItem("name").getNodeValue();        
         Node colorAttr = dataNode.getAttributes().getNamedItem("color");
         if ( colorAttr != null ) {
         	Scanner s = new Scanner( colorAttr.getNodeValue());
@@ -171,7 +180,7 @@ public class Parser extends Scene {
             float g = s.nextFloat();
             float b = s.nextFloat();
             float a = (s.hasNextFloat() ? s.nextFloat() : 1); // fixed 0 -> 1
-            light.color.set(r,g,b,a);   
+            color.set(r,g,b,a);   
             s.close();    	
         }
         Node fromAttr = dataNode.getAttributes().getNamedItem("from");
@@ -180,18 +189,18 @@ public class Parser extends Scene {
             double x = s.nextDouble();
             double y = s.nextDouble();
             double z = s.nextDouble();
-            light.from.set(x,y,z); 
+            from.set(x,y,z); 
             s.close();
         }
         Node powerAttr = dataNode.getAttributes().getNamedItem("power");
         if ( powerAttr != null ) {
-        	light.power = Double.parseDouble( powerAttr.getNodeValue() );
+        	power = Double.parseDouble( powerAttr.getNodeValue() );
         }
         Node typeAttr = dataNode.getAttributes().getNamedItem("type");
         if ( typeAttr != null ) {
-        	light.type = typeAttr.getNodeValue();
+        	type = typeAttr.getNodeValue();
         }        
-		return light;
+		return new Light(name, color, from, power, type);
 	}
 	
 	/**
