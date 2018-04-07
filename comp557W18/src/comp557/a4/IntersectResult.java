@@ -10,7 +10,7 @@ import javax.vecmath.Vector3d;
 /**
  * Use this class to store the result of an intersection, or modify it to suit your needs!
  */
-public class IntersectResult {
+public class IntersectResult /*implements Comparable<IntersectResult>*/ {
 	
 	// the shape
 	private Intersectable shape;
@@ -45,7 +45,11 @@ public class IntersectResult {
 		mat.transform(n);
 		mat.transform(p);
 	}
-		
+	
+	/*public int compareTo(IntersectResult other) {
+		return this.t - other.t;
+	}*/
+	
 	public double getT() {
 		return t;
 	}
