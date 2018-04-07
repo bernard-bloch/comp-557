@@ -30,6 +30,9 @@ public class Plane extends Intersectable {
     }
 
         
+    public String toString() {
+    	return "Plane(p0=" + p0 + ";n=" + n + ")";
+    }
     @Override
     public IntersectResult intersect( Ray ray ) {
     
