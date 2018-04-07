@@ -38,6 +38,7 @@ public class Box extends Intersectable {
 		private Axes axis;
 		private Plane minPlane, maxPlane;
 		private double min, max;
+		private Point2d nullMin, nullMax;
 		MinMax(final Axes axis, final Point3d min, final Point3d max, final Material m) {
 			super(m);
 			this.axis = axis;
@@ -45,6 +46,8 @@ public class Box extends Intersectable {
 			this.maxPlane = new Plane(max, axis.getAxisPos(), m, null);
 			this.min = axis.getProj().apply(min);
 			this.max = axis.getProj().apply(max);
+			this.nullMin = axis.getNullProj().apply(min);
+			this.nullMax = axis.getNullProj().apply(max);
 		}
 		public IntersectResult intersect(Ray ray) {
 			
@@ -60,20 +63,12 @@ public class Box extends Intersectable {
 			}
 			if(could == null) return null;
 
-			IntersectResult ir;
-			/*irMin = minPlane.intersect(ray);
-			if(irMin != null) {
-				Point2d proj = axis.getNullProj().apply(irMin.getPoint());
-				if(min.x < proj.x || min.y < proj.x) irMin = null;
-			}*/
-			ir = could.intersect(ray);
-			/*if(irMax != null) {
-				Point2d proj = axis.getNullProj().apply(irMax.getPoint());
-				if(proj.x > max.x || proj.y > max.x) irMax = null;
-			}*/
-			/*if(irMin == null) return irMax;
-			if(irMax == null) return irMin;
-			return irMin.getT() < irMax.getT() ? irMin : irMax;*/
+			// intersect
+			IntersectResult ir = could.intersect(ray);
+			if(ir == null) return null; // shouldn't happen
+			Point2d tex = axis.getNullProj().apply(ir.getPoint());
+			if(tex.x > nullMax.x || tex.y > nullMax.y) return null;
+			if(tex.x < nullMin.x || tex.y < nullMin.y) return null;
 			return ir;
 		}
 		public String toString() {
