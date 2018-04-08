@@ -21,15 +21,11 @@ public abstract class Scene {
     /** List of surfaces in the scene */
     protected List<Intersectable> surfaceList = new ArrayList<Intersectable>();
 	
-	/** All scene lights */
-	//protected Map<String,Light> lights = new HashMap<String,Light>();
-
     /** Contains information about how to render the scene */
     protected Render render;
     
-    /** The ambient light colour */
-    //TODO: why doesn't it be Color4f?
-    protected Color3f ambient = new Color3f();
+    /** The ambient light colour. made it transparent */
+    protected Color4f ambient = new Color4f();
     
 	// https://en.wikipedia.org/wiki/Alpha_compositing
     private void alphaBlend(Color4f colour, Color4f add) {
@@ -136,9 +132,8 @@ public abstract class Scene {
         	// if the alpha is 1, just stop
         	if(c.w >= 1.0f) break;
         }
-        // turn on background. This will render an all alpha = 1
-        // FIXME: have it be any alpha
-        //alphaBlend(c, render.getBgcolour());
+        // turn on background.
+        alphaBlend(c, render.getBgcolour());
         return c;
     }
     
@@ -158,18 +153,25 @@ public abstract class Scene {
         
         for ( int y = 0; y < h && !render.isDone(); y++ ) { // bottom to top
         	for ( int x = 0; x < w && !render.isDone(); x++ ) { // left to right
-            	
-                // Objective 1: generate a ray (use the generateRay method)
-                // Objective 2: test for intersection with scene surfaces
-            	IntersectResult result = getClosestResult(new Ray(x, y, cam));
-				
-            	// FIXME: instead of [0..1] make it [0..n] and have reflected/refracted/transparent scenes
-            	List<IntersectResult> irs = new ArrayList<>();
-            	if(result != null) irs.add(result);
+        		int samples = render.getSamples();
+        		Color4f colour = new Color4f();
+            	for (int s = 0; s < samples; s++) {
+
+            		// Objective 1: generate a ray (use the generateRay method)
+                    // Objective 2: test for intersection with scene surfaces
+                	IntersectResult result = getClosestResult(new Ray(x, y, cam, s != 0));
+    				
+                	// FIXME: instead of [0..1] make it [0..n] and have reflected/refracted/transparent scenes
+                	List<IntersectResult> irs = new ArrayList<>();
+                	if(result != null) irs.add(result);
+                	
+                	colour.add(colour(irs));
+            	}
+            	colour.scale(1.0f / samples);
             	
                 // Objective 3: compute the shaded result for the intersection point (perhaps requiring shadow rays)
                 // update the render image
-                render.setPixel(x, y, colour(irs));
+                render.setPixel(x, y, colour);
             }
         }
         Light.getLights().clear();

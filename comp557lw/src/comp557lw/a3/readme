@@ -1,0 +1,10 @@
+
+
+
+
+Jonathan Bernard Bloch 260632216
+
+The files modified are HEDS.java, CatmullClark.java, HalfEdge.java, and Face.java. They are marked after what point I've changed them. Question 1 is in HEDS.java. Questions 2, 3, 4, 5, and 6 are in CatmullClark.java with helper methods in HalfEdge.java and Face.java. I felt it was good object oriented code to have the HalfEdge and the Face do their own computations, called from CatmullClark. Question 5 I do not see the normal calculations in the referenced paper, I just made them up.
+
+
+

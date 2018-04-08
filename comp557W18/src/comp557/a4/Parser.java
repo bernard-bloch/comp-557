@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.vecmath.Color3f;
 import javax.vecmath.Color4f;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -29,7 +28,9 @@ public class Parser extends Scene {
             float x = s.nextFloat();
             float y = s.nextFloat();
             float z = s.nextFloat();
-            this.ambient.set(x, y, z);   
+            float a = (s.hasNextFloat() ? s.nextFloat() : 1); // added
+            this.ambient.set(x, y, z, a);   
+            System.err.println("Parser: "+ambient);
             s.close();
         }
         NodeList nodeList = dataNode.getChildNodes();
@@ -223,6 +224,8 @@ public class Parser extends Scene {
 	    /** Vertical field of view (in degrees), default is 45 degrees */
 	    double fovy = 45.0;
 	    
+	    double fuzziness = 0.4;
+	    
 	    /** The rendered image size */
 	    Dimension imageSize = new Dimension(640,480);
 
@@ -267,8 +270,12 @@ public class Parser extends Scene {
         if ( heightAttr != null ) {
             imageSize.height = Integer.parseInt( heightAttr.getNodeValue() );        	
         }
+        Node fuzzAttr = dataNode.getAttributes().getNamedItem("fuzziness");
+        if ( fuzzAttr != null ) {
+            fuzziness = Integer.parseInt( fuzzAttr.getNodeValue() );        	
+        }
         
-		return new Camera(from, to, up, fovy, imageSize);
+		return new Camera(from, to, up, fovy, imageSize, fuzziness);
 	}
 	
 	/**
@@ -338,7 +345,7 @@ public class Parser extends Scene {
 	    String output = "render.png";
 	    
 	    /** The background color */
-	    Color3f bgcolor = new Color3f();
+	    Color4f bgcolor = new Color4f();
 	    
 		Node outputAttr = dataNode.getAttributes().getNamedItem("output");
 		if ( outputAttr != null ) {
@@ -350,7 +357,8 @@ public class Parser extends Scene {
             float r = s.nextFloat();
             float g = s.nextFloat();
             float b = s.nextFloat();
-			bgcolor.set(r,g,b);
+            float a = (s.hasNextFloat() ? s.nextFloat() : 1); // added
+			bgcolor.set(r,g,b,a);
 			s.close();
 		}		
 		Node samplesAttr = dataNode.getAttributes().getNamedItem("samples");
@@ -374,12 +382,32 @@ public class Parser extends Scene {
 	
 	/**
 	 * Create a plane. material2 can be null.
+	 * Expanded this function.
 	 */
 	public static Plane createPlane( Node dataNode ) {
+		Point3d p0 = new Point3d(0,0,0);
+		Vector3d n = new Vector3d(0,1,0);
 		Material material = parseMaterial(dataNode, "material");	
 		Material material2 = parseMaterial(dataNode, "material2");
-		return new Plane(new Point3d(0,0,0), new Vector3d(0,1,0), material, material2);	
-		// TODO: expand this easily
+		Node p0Attr = dataNode.getAttributes().getNamedItem("p0");
+		if ( p0Attr != null ) {
+        	Scanner s = new Scanner( p0Attr.getNodeValue());
+            double x = s.nextDouble();
+            double y = s.nextDouble();
+            double z = s.nextDouble();
+            p0.set(x,y,z);
+            s.close();
+		}
+		Node nAttr = dataNode.getAttributes().getNamedItem("n");
+		if ( nAttr != null ) {
+        	Scanner s = new Scanner( nAttr.getNodeValue());
+            double x = s.nextDouble();
+            double y = s.nextDouble();
+            double z = s.nextDouble();
+            n.set(x,y,z);
+            s.close();
+		}
+		return new Plane(p0, n, material, material2);	
 	}
 	
 	/**

@@ -5,7 +5,7 @@
   <material name="red" diffuse="1 0 0" specular="0.8 0.8 0.8" hardness="32" />
   
   <!-- render configuration -->
-  <render bgcolor="0 0 0" output="Cube.png">
+  <render bgcolor="0 0 0 0.1" output="Cube.png">
       <camera name="myCamera" from="8 8 8" to="0 0 0" up="0 1 0" fovy="45" width="512" height="512" />
   </render> 
   

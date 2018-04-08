@@ -23,15 +23,15 @@ public class Light /*implements Iterable<Light>*/ {
     /** Type of light, default is a point light */
     private String type;// = "point";
 
-    // store all the lights for lighting
+    // store all the lights for lighting -- moved from Scene
+	/** All scene lights */
+	//protected Map<String,Light> lights = new HashMap<String,Light>();
     static private List<Light> lights = new LinkedList<>();
     
     /**
      * Default constructor 
      */
     public Light(String name, Color4f colour, Point3d from, double power, String type) {
-    	// do nothing
-    	//allLights.add(this);
     	this.name = name;
     	this.color = colour;
     	this.from = from;
@@ -63,10 +63,6 @@ public class Light /*implements Iterable<Light>*/ {
     public String getType() {
     	return type;
     }
-    
-    /*static public List<Light> getAllLights() {
-    	return allLights;
-    }*/
     
     public String toString() {
     	return name+" at "+from+" colour "+color+" power "+power;

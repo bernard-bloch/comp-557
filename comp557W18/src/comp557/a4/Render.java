@@ -49,7 +49,7 @@ public class Render extends WindowAdapter {
     private String output;
     
     /** The background color */
-    private Color3f bgcolor;
+    private Color4f bgcolor;
     
     /** Buffered image of the render, updated as it progresses */    
     private BufferedImage image;
@@ -60,7 +60,7 @@ public class Render extends WindowAdapter {
     /** Flag to indicate when rendering should stop */
     private boolean done;
     
-    public Color3f getBgcolour() {
+    public Color4f getBgcolour() {
     	return bgcolor;
     }
     
@@ -68,7 +68,7 @@ public class Render extends WindowAdapter {
     	return camera;
     }
     
-    public int GetSamples() {
+    public int getSamples() {
     	return samples;
     }
     
@@ -86,7 +86,7 @@ public class Render extends WindowAdapter {
      * @param width
      * @param height
      */
-    public Render(Camera camera, int samples, String output, Color3f bgcolor, boolean showPanel) {
+    public Render(Camera camera, int samples, String output, Color4f bgcolor, boolean showPanel) {
     	//image = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
     	image = new BufferedImage( camera.getImageSize().width, camera.getImageSize().height, BufferedImage.TYPE_INT_ARGB );
     	Graphics2D g2 = (Graphics2D)image.getGraphics();
@@ -116,6 +116,7 @@ public class Render extends WindowAdapter {
     	this.output = output;
     	this.bgcolor = bgcolor;
     	this.samples = samples;
+    	System.err.println("Render::samples "+samples);
     }
     
     public void setPixel(int x, int y, int argb) {

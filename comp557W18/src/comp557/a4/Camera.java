@@ -25,11 +25,12 @@ public class Camera {
 
     private Point3d from;
     private Vector3d x, y, z;
+	private double fuzziness;
 
     /**
      * constructor. for real.
      *      */
-    public Camera(Point3d from, Point3d to, Vector3d up, double fovy, Dimension image) {
+    public Camera(Point3d from, Point3d to, Vector3d up, double fovy, Dimension image, double fuzziness) {
     	//this.name = name;
 
     	// from the from, to, and up, get the axis
@@ -49,6 +50,8 @@ public class Camera {
         
         // x, y -> imageSize
         this.imageSize = image;
+        
+        this.fuzziness = fuzziness;
 
         System.out.println("Camera: "+this);
     }
@@ -75,6 +78,10 @@ public class Camera {
     
     public Dimension getImageSize() {
     	return imageSize;
+    }
+    
+    public double getFuzziness() {
+    	return fuzziness;
     }
     
 	static private String tup(Tuple3d a) {
