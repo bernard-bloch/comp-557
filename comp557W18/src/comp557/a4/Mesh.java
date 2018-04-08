@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -21,38 +20,67 @@ public class Mesh extends Intersectable {
 	
 	/**
 	 * The polygon soup.
+	 * Only for cloning objects.
 	 */
-	private PolygonSoup soup;
+	private final PolygonSoup soup;
+	
+	private final Sphere bounding;
 
-	// raytracing does not do vertex normals. All faces must be triangles.
+	// tris is processed, triangulated polygon soup
+	private final List<Tri> tris = new ArrayList<>();
+
+	// raytracing does not do vertex normals.
+	// ignore normals and calculate my own
+	// All faces must be triangles.
 	private class Tri {
-		Point2d v1, v2, v3;
-		Plane p;
-		Tri(Point3d v1, Point3d v2, Point3d v3) {
-			Vector3d y = new Vector3d();
-			Vector3d z = new Vector3d(v2);
-			z.sub(v1);
-			Vector3d x = new Vector3d(v3);
-			x.sub(v1);
-			y.cross(z, x);
-			y.normalize();
-			p = new Plane(v1, y, null, null);
-			this.v1 = new Point2d(0, 0);
-			/*this.v2 = new Point2d(z.dot());*/
+		private final Vector3d ab, bc, ca, n;
+		private final double d, area;
+		//private final Plane p;
+		Tri(Point3d a, Point3d b, Point3d c) {
+			ab = new Vector3d(b);
+			ab.sub(a);
+			bc = new Vector3d(c);
+			bc.sub(b);
+			ca = new Vector3d(a);
+			ca.sub(c);
+			n = new Vector3d();
+			n.cross(ab, bc); // normal
+			n.normalize();
+			d = -n.dot(new Vector3d(a)); // ax + by + cz + d = 0
+			// we must calculate the area
+			Vector3d crossProd = new Vector3d();
+			crossProd.cross(ca, ab);
+			area = 1.0 / n.dot(crossProd);
+			//p = new Plane(a, y, null, null);
 		}
 	}
-
-	private List<Tri> tris = new ArrayList<>();
 	
-	public Mesh(String name, PolygonSoup soup, Material m) {
+	public Mesh(final String name, final PolygonSoup soup, final Material m) {
 		super(m);
+    	assert(name != null && soup != null && m != null && soup.vertexList != null && soup.vertexList.size() > 0);
 		this.name = name;
 		this.soup = soup;
     	if ( !meshMap.containsKey(name) )
     		meshMap.put(name, this);
     	List<Vertex> vs = soup.vertexList;
+    	// figure out the bounding sphere
+    	Vector3d toCentre = new Vector3d();
+    	double toCentreLen, radius = 0.0;
+		Point3d centre = new Point3d(vs.get(0).p);
+    	for(Vertex v : vs) {
+   			toCentre.sub(v.p, centre);
+   			toCentreLen = toCentre.length();
+			if(radius < toCentreLen) {
+				double scale = 0.5*(toCentreLen-radius);
+				toCentre.scale(scale);
+    			toCentreLen *= scale;
+				centre.add(toCentre);
+				radius += toCentreLen;
+			}
+    	}
+    	this.bounding = new Sphere(centre, radius, m);
+    	// triangulate and process
     	for(int face[] : soup.faceList) {
-    		// triangulate
     		for(int i = 2; i < face.length; i++) {
     			tris.add(new Tri(vs.get(face[0]).p, vs.get(face[i-1]).p, vs.get(face[i]).p));
     		}
@@ -65,7 +93,7 @@ public class Mesh extends Intersectable {
 		// Objective 7: ray triangle intersection for meshes
 		
 		
-		return null;
+		return bounding.intersect(ray);
 	}
 
 	public static Map<String, Mesh> getMeshMap() {
