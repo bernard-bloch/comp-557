@@ -27,11 +27,16 @@ public class Sphere extends Intersectable {
     	this.center = center;
     }
     
+    public boolean inSphere(final Point3d x) {
+    	double l2 = this.center.distanceSquared(x);
+    	return radius * radius < l2;
+    }
+    
     @Override
     public IntersectResult intersect( Ray ray ) {
     
         // Objective 2: intersection of ray with sphere
-    	    	
+    	
     	// ray: x = p + td
     	// circle: |x - c|^2 = r^2
     	Vector3d p_min_c = new Vector3d(ray.getEyePoint());
