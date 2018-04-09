@@ -29,14 +29,15 @@ public class Mesh extends Intersectable {
 	// tris is processed, triangulated polygon soup
 	private final List<Tri> tris = new ArrayList<>();
 
-	// raytracing does not do vertex normals.
-	// ignore normals and calculate my own
 	// All faces must be triangles.
 	private class Tri {
-		private final Vector3d ab, bc, ca, n;
-		private final double d, area;
-		//private final Plane p;
-		Tri(Point3d a, Point3d b, Point3d c) {
+		private final Vector3d a, b, c, ab, bc, ca, n;
+		private final double /*d,*/ area;
+		private final Plane p;
+		Tri(final Point3d a, final Point3d b, final Point3d c) {
+			this.a = new Vector3d(a);
+			this.b = new Vector3d(b);
+			this.c = new Vector3d(c);
 			ab = new Vector3d(b);
 			ab.sub(a);
 			bc = new Vector3d(c);
@@ -46,12 +47,12 @@ public class Mesh extends Intersectable {
 			n = new Vector3d();
 			n.cross(ab, bc); // normal
 			n.normalize();
-			d = -n.dot(new Vector3d(a)); // ax + by + cz + d = 0
+			//d = -n.dot(new Vector3d(a)); // ax + by + cz + d = 0
 			// we must calculate the area
 			Vector3d crossProd = new Vector3d();
 			crossProd.cross(ca, ab);
 			area = 1.0 / n.dot(crossProd);
-			//p = new Plane(a, y, null, null);
+			p = new Plane(a, n, material, null);
 		}
 	}
 	
@@ -92,8 +93,41 @@ public class Mesh extends Intersectable {
 		
 		// Objective 7: ray triangle intersection for meshes
 		
+		// quick bounding sphere test
+		if( bounding.intersect(ray) == null ) return null;
 		
-		return bounding.intersect(ray);
+		IntersectResult ir = null, irtemp;
+		Vector3d v = new Vector3d(); // temporary vector to store cross-products
+		double a = 0, b = 0, c = 0, atemp, btemp, ctemp;
+		for(Tri t : tris) {
+			irtemp = t.p.intersect(ray);
+			if(irtemp == null || (ir != null && irtemp.getT() > ir.getT())) continue;
+
+			// see if the intersection is in the triangle using barycentric coordinates
+			Point3d p = irtemp.getPoint();
+
+			Vector3d ap = new Vector3d(p);
+			ap.sub(t.a);
+			v.cross(t.ab, ap);
+			if((ctemp = v.dot(t.n)) < 0) continue;
+			
+			Vector3d bp = new Vector3d(p);
+			bp.sub(t.b);
+			v.cross(t.bc, bp);
+			if((atemp = v.dot(t.n)) < 0) continue;
+
+			Vector3d cp = new Vector3d(p);
+			cp.sub(t.c);
+			v.cross(t.ca, cp);
+			if((btemp = v.dot(t.n)) < 0) continue;
+
+			c = ctemp * t.area;
+			a = atemp * t.area;
+			b = btemp * t.area;
+			ir = irtemp;
+		}
+		// FIXME: interpolate normals for smooth surfaces
+		return ir;
 	}
 
 	public static Map<String, Mesh> getMeshMap() {

@@ -59,5 +59,8 @@ public class Plane extends Intersectable {
     	}
     	return new IntersectResult(this, t, intersect, n, m);
     }
+    public Vector3d getP0() {
+    	return p0;
+    }
     
 }
