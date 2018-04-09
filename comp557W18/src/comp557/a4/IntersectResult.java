@@ -54,6 +54,11 @@ public class IntersectResult /*implements Comparable<IntersectResult>*/ {
 		return t;
 	}
 	
+	public void setN(final Vector3d n) {
+		this.n = n;
+		this.n.normalize();
+	}
+	
 	public Vector3d getNormal() {
 		return n;
 	}
