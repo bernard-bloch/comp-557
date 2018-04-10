@@ -273,7 +273,7 @@ public class Parser extends Scene {
         }
         Node fuzzAttr = dataNode.getAttributes().getNamedItem("fuzziness");
         if ( fuzzAttr != null ) {
-            fuzziness = Integer.parseInt( fuzzAttr.getNodeValue() );        	
+            fuzziness = Double.parseDouble( fuzzAttr.getNodeValue() );        	
         }
         
 		return new Camera(from, to, up, fovy, imageSize, fuzziness);

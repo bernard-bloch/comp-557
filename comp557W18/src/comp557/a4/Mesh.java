@@ -96,7 +96,7 @@ public class Mesh extends Intersectable {
 		// Objective 7: ray triangle intersection for meshes
 		
 		// quick bounding sphere test
-		if( bounding.intersect(ray) == null || bounding.inSphere(ray.getEyePoint()) ) return null;
+		if( bounding.intersect(ray) == null && !bounding.inSphere(ray.getEyePoint()) ) return null;
 		
 		IntersectResult ir = null, irtemp;
 		Tri tri = null;
