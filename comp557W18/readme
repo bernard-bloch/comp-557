@@ -1,0 +1,63 @@
+Jonathan Bernard Bloch 260632216
+
+I have made Scene abstract and Parser extend Scene. This way, all the public data could be made private. Render now contains setPixel.
+Simplified Intersectable. Now it takes a Ray and returns an IntersectionResult or null. Objective 1 and 2 now fit on one line.
+Improved modularity of code.
+
+Implemented alpha blending but didn't implement a ray transport algorthm. Namely, List<IntersectResult> has either 0 or 1 objects per pixel. Therefore, the only thing this affects is the objects on the background. I made the background a Color4f so that it could be transparent.
+
+I didn't spend much time on Q7. Therefore, I have a bug serious bug. Anytime that Cornell or BoxStacks is rendered, it messes up the rendering and leaves the ray tracer in an invalid state. Rendering others after Cornell or BoxStacks will be corrupted. Do not do this.
+
+I did Monte-Carlo rays for the second sample onwards. If you have more than one one sample per pixel, it generates a ray with a gaussian randomisation. The coefficient can be set on the camera and is called fuzziness.
+
+I did interpolated per-vertex normals instead of face normals. I just borrowed from A3.
+
+I expanded planes and set "p0" and "n" this allowed planes to be used in mesh.
+
+I implemented in Mesh a bounding sphere that greatly speeds up the process. I implemented it using a Sphere, and the Mesh faces using Planes.
+
+260632216-competition.png
+Dog.
+
+AACeckerPlane.png
+Okay.
+
+Axis.png
+Test of spheres when I was doing spheres.
+
+BoxRGBLights.png
+Good.
+
+BoxStacks.png
+Bad. Do not render.
+
+Cornell.png
+plane coeffs. It's not apperent what this does. Do not render.
+
+Cube.png
+Test of cube when I was doing cube. Should be a sub-instance of Mesh.
+
+Mesh.png
+Test of per-vertex normals.
+
+Plane.png
+Good.
+
+Plane2.png
+Good?
+
+Planes.png
+I created this as my entry but it didn't turn out very well.
+
+Sphere.png
+Good.
+
+TorusMesh.png
+You can see the improvement in quality using per-vertex lighting.
+
+TwoSpheresPlane.png
+Good. I think the gamma correction factor is off or something from the suppied image.
+
+TwoSpheresPlane-impressionist.png
+A large fuzziness.
+

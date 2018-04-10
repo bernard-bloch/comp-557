@@ -24,7 +24,7 @@ public abstract class Scene {
     /** Contains information about how to render the scene */
     protected Render render;
     
-    /** The ambient light colour. made it transparent */
+    /** The ambient light colour. */
     protected Color3f ambient = new Color3f();
     
 	// https://en.wikipedia.org/wiki/Alpha_compositing
@@ -34,13 +34,6 @@ public abstract class Scene {
     	colour.z = colour.z + add.z * (1.0f - colour.w);
     	colour.w = colour.w + add.w * (1.0f - colour.w);
     }
-    
-    /*private void alphaBlend(Color4f colour, Color3f add) {
-    	colour.x = colour.x + add.x * (1.0f - colour.w);
-    	colour.y = colour.y + add.y * (1.0f - colour.w);
-    	colour.z = colour.z + add.z * (1.0f - colour.w);
-    	colour.w = 1;
-    } */   
     
 	static DecimalFormat df = new DecimalFormat("#.00");
 	static private String tup(Tuple3d a) {
@@ -161,7 +154,7 @@ public abstract class Scene {
                     // Objective 2: test for intersection with scene surfaces
                 	IntersectResult result = getClosestResult(new Ray(x, y, cam, s != 0));
     				
-                	// FIXME: instead of [0..1] make it [0..n] and have reflected/refracted/transparent scenes
+                	// FIXME: instead of [0..1] make it [0..n] and have reflected/refracted/transparent ray transport
                 	List<IntersectResult> irs = new ArrayList<>();
                 	if(result != null) irs.add(result);
                 	
