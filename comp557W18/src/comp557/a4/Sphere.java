@@ -29,7 +29,7 @@ public class Sphere extends Intersectable {
     
     public boolean inSphere(final Point3d x) {
     	double l2 = this.center.distanceSquared(x);
-    	return radius * radius < l2;
+    	return radius * radius > l2;
     }
     
     @Override
