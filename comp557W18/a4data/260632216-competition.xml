@@ -11,7 +11,7 @@
   
   <!-- render configuration -->
   <render bgcolor="0 0 0" output="260632216-competition.png" samples="10">
-      <camera name="myCamera" from="0 10 10" to="0 0 0" up="0 1 0" fovy="45" width="256" height="256" fuzziness="1"/>
+      <camera name="myCamera" from="0 4 10" to="0 0 0" up="0 1 0" fovy="45" width="256" height="256" fuzziness="1"/>
   </render> 
   
   <node name="root" >

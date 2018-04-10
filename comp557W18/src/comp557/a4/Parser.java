@@ -28,8 +28,9 @@ public class Parser extends Scene {
             float x = s.nextFloat();
             float y = s.nextFloat();
             float z = s.nextFloat();
-            float a = (s.hasNextFloat() ? s.nextFloat() : 1); // added
-            this.ambient.set(x, y, z, a);   
+            // ambient light has no alpha, this was bad
+            //float a = (s.hasNextFloat() ? s.nextFloat() : 1); // added
+            this.ambient.set(x, y, z);   
             System.err.println("Parser: "+ambient);
             s.close();
         }

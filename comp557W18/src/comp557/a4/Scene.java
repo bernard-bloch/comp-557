@@ -25,7 +25,7 @@ public abstract class Scene {
     protected Render render;
     
     /** The ambient light colour. made it transparent */
-    protected Color4f ambient = new Color4f();
+    protected Color3f ambient = new Color3f();
     
 	// https://en.wikipedia.org/wiki/Alpha_compositing
     private void alphaBlend(Color4f colour, Color4f add) {
